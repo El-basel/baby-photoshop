@@ -24,9 +24,40 @@ void grayScale(Image& image)
     }
 }
 
-void blackAndWhite()
-{
 
+void blackAndWhite(Image& image)
+{
+    int threshold{ 127};
+    grayScale(image);
+    for (int i = 0; i < image.width; ++i) {
+        for (int j = 0; j < image.height; ++j) {
+            if(image(i,j,0) <= threshold)
+            {
+                image(i,j,0) = 0;
+            }
+            else if(image(i,j,0) > threshold)
+            {
+                image(i,j,0) = 255;
+            }
+
+            if(image(i,j,1) <= threshold)
+            {
+                image(i,j,1) = 0;
+            }
+            else if(image(i,j,1) > threshold)
+            {
+                image(i,j,1) = 255;
+            }
+            if(image(i,j,2) <= threshold)
+            {
+                image(i,j,2) = 0;
+            }
+            else if(image(i,j,2) > threshold)
+            {
+                image(i,j,2) = 255;
+            }
+        }
+    }
 }
 void invertImage()
 {
@@ -77,7 +108,6 @@ int getImage(Image& image)
     }
     try {
         image.loadNewImage(imageName);
-        std::cout << "done\n";
     }
     catch (std::invalid_argument& e) {
         std::cerr << std::flush;
@@ -88,6 +118,7 @@ int getImage(Image& image)
     return 1;
 }
 
+//take the new image name to save it or overwrite the same image
 int saveImage(Image& image)
 {
     std::string imageName{};
@@ -99,6 +130,9 @@ int saveImage(Image& image)
     catch (std::invalid_argument& e) {
         std::cerr << std::flush;
         std::cout << e.what() << std::endl;
+        // stop the program for 100ms,
+        // because std::cerr and std::cout of the new iteration get printed on the same line
+        // which affects the formatting, so print the message from std::cerr the stop a bit then continue
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         return -1;
     }
@@ -107,37 +141,28 @@ int saveImage(Image& image)
 
 int main()
 {
-
     std::cout << "-----------------------------" << std::endl;
     std::cout << "| Welcome to Baby Photoshop |" << std::endl;
     std::cout << "-----------------------------" << std::endl;
-    /**
-     * @brief - Ask the user about the image name that they want to load it
-     * @brief
-     * @brief - load the image in "image" and in "oldImage" if we wanted to get the old one back again
-     * @brief
-     * @brief - define "imageStatus" and use it to know if the operation of loading the image succeeded, failed, or the user wants to exit
-     *
-     * */
+    //- Ask the user about the image name that they want to load it
+    //- load the image in "image"
+    //- define "imageStatus" and use it to know if the operation of loading the image succeeded, failed, or the user wants to exit
     std::string imageName{};
     Image image;
-    Image oldImage;
     int imageStatus{};
     while (true)
     {
         imageStatus = getImage(image);
         if(imageStatus == 0)
         {
-            return 0;
+
+            break;
         }
         else if(imageStatus == -1)
         {
             continue;
         }
-        oldImage = image;
-        /**
-         * @brief check what filters does the user want
-         * */
+        // check what filters does the user want
         std::string choice{};
         choice = chooseFilter();
         switch (std::stoi(choice)) {
@@ -145,7 +170,7 @@ int main()
                 grayScale(image);
                 break;
             case 2:
-                blackAndWhite();
+                blackAndWhite(image);
                 break;
             case 3:
                 invertImage();
@@ -172,7 +197,6 @@ int main()
             }
             else if(saveOption == "discard")
             {
-                image = oldImage;
                 break;
             }
             else

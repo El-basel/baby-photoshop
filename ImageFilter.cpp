@@ -4,6 +4,51 @@
 #include <thread>
 #include "Image_Class.h"
 
+//take the new image name to save it or overwrite the same image
+int saveImage(Image& image)
+{
+    std::string imageName{};
+    std::cout << "Please enter the image name to save it \nOr type the same name to overwrite it:" << std::flush;
+    std::getline(std::cin >> std::ws, imageName);
+    try {
+        image.saveImage(imageName);
+    }
+    catch (std::invalid_argument& e) {
+        std::cerr << std::flush;
+        std::cout << e.what() << std::endl;
+        // stop the program for 100ms,
+        // because std::cerr and std::cout of the new iteration get printed on the same line
+        // which affects the formatting, so print the message from std::cerr the stop a bit then continue
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        return -1;
+    }
+    return 1;
+}
+void save(Image& image)
+{
+    int imageStatus{};
+    std::string saveOption{};
+    do {
+        std::cout << "Do you want to save the image or discard it?(save/discard)" << std::flush;
+        std::cin >> saveOption;
+        if(saveOption == "save")
+        {
+            do {
+                imageStatus = saveImage(image);
+            } while (imageStatus == -1);
+            break;
+        }
+        else if(saveOption == "discard")
+        {
+            break;
+        }
+        else
+        {
+            std::cout << "Please enter a valid option" << std::endl;
+        }
+    } while (saveOption != "save" or saveOption != "discard");
+}
+
 void grayScale(Image& image)
 {
     for (int i = 0; i < image.width; ++i) {
@@ -22,12 +67,12 @@ void grayScale(Image& image)
             image(i, j, 2) = avg;
         }
     }
-}
 
+}
 
 void blackAndWhite(Image& image)
 {
-    int threshold{ 127};
+    int threshold{127};
     grayScale(image);
     for (int i = 0; i < image.width; ++i) {
         for (int j = 0; j < image.height; ++j) {
@@ -58,6 +103,7 @@ void blackAndWhite(Image& image)
             }
         }
     }
+    save(image);
 }
 void invertImage()
 {
@@ -118,26 +164,6 @@ int getImage(Image& image)
     return 1;
 }
 
-//take the new image name to save it or overwrite the same image
-int saveImage(Image& image)
-{
-    std::string imageName{};
-    std::cout << "Please enter the image name to save it \nOr type the same name to overwrite it:" << std::flush;
-    std::getline(std::cin >> std::ws, imageName);
-    try {
-        image.saveImage(imageName);
-    }
-    catch (std::invalid_argument& e) {
-        std::cerr << std::flush;
-        std::cout << e.what() << std::endl;
-        // stop the program for 100ms,
-        // because std::cerr and std::cout of the new iteration get printed on the same line
-        // which affects the formatting, so print the message from std::cerr the stop a bit then continue
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        return -1;
-    }
-    return 1;
-}
 
 int main()
 {
@@ -168,6 +194,7 @@ int main()
         switch (std::stoi(choice)) {
             case 1:
                 grayScale(image);
+                save(image);
                 break;
             case 2:
                 blackAndWhite(image);
@@ -183,26 +210,7 @@ int main()
                 break;
             default:
                 std::cout << "You did not choose a filter" << std::endl;
+                save(image);
         }
-        std::string saveOption{};
-        do {
-            std::cout << "Do you want to save the image or discard it?(save/discard)" << std::flush;
-            std::cin >> saveOption;
-            if(saveOption == "save")
-            {
-                do {
-                    imageStatus = saveImage(image);
-                } while (imageStatus == -1);
-                break;
-            }
-            else if(saveOption == "discard")
-            {
-                break;
-            }
-            else
-            {
-                std::cout << "Please enter a valid option" << std::endl;
-            }
-        } while (saveOption != "save" or saveOption != "discard");
     }
 }

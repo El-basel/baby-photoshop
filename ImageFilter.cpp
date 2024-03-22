@@ -113,9 +113,86 @@ void mergeImages()
 {
 
 }
-void flipImage()
+void topBottomFlip(Image& flipped, Image& image)
 {
+    for (int i = 0; i < image.width; ++i) {
+        for (int j = 0; j < image.height; ++j) {
+            for (int k = 0; k < 3; ++k) {
+                flipped(i, image.height - j - 1, k) = image(i,j,k);
+            }
+        }
+    }
+}
+void leftRightFlip(Image& flipped, Image& image)
+{
+    for (int j = 0; j < image.height; ++j) {
+        for (int i = 0; i < image.width; ++i) {
+            for (int k = 0; k < 3; ++k) {
+                flipped(image.width - i - 1, j, k) = image(i,j,k);
+            }
+        }
+    }
+}
+void flipImage(Image& image)
+{
+    std::string choice{};
+    std::cout << "How do you like to flip the image?" << std::endl;
+    do {
+        std::cout << "1. Top to Bottom" << std::endl;
+        std::cout << "2. Left to Right" << std::endl;
+        std::cout << "Enter your choice:";
+        std::getline(std::cin >> std::ws, choice);
+        if(choice < "1" or choice > "2" or choice.length() != 1)
+        {
+            std::cout << "please enter a valid choice" << std::endl;
+        }
+    } while (choice < "1" or choice > "2" or choice.length() != 1);
+    Image flipped(image.width,image.height);
 
+    if(choice == "1")
+    {
+        topBottomFlip(flipped, image);
+    }
+    else if(choice == "2")
+    {
+        leftRightFlip(flipped, image);
+    }
+    save(flipped);
+}
+
+void cropImage(Image& image)
+{
+    std::cout << "How do you like to crop the image?" << std::endl;
+    int x,y,width,height;
+    while (true)
+    {
+        std::cout << "Enter the coordinates of the starting point" << std::endl;
+        std::cout << "Enter the x-coordinates first then leave a space then enter the y-coordinates:";
+        std::cin >> x >> y;
+        if(x > image.width or y > image.height or x < 0 or y < 0)
+        {
+            std::cout << "Please enter a valid coordinates" << std::endl;
+            continue;
+        }
+        std::cout << "Enter the dimensions of the cropping" << std::endl;
+        std::cout << "Enter the width first then leave a space then enter the height:";
+        std::cin >> width >> height;
+        if(width > image.width or height > image.height or width < 0 or height < 0)
+        {
+            std::cout << "Please enter a valid coordinates" << std::endl;
+            continue;
+        }
+        break;
+    }
+    Image cropped(width,height);
+    for (int i = x , iC = 0; i < x + width - 1; ++i, ++iC) {
+        for (int j = y , jC = 0; j < y + height - 1; ++j, ++jC) {
+            for (int k = 0; k < 3; ++k) {
+                cropped(iC, jC, k) = image(i,j,k);
+            }
+        }
+    }
+    save(cropped);
 }
 
 std::string chooseFilter()
@@ -129,7 +206,8 @@ std::string chooseFilter()
         std::cout << "3. Invert Image" << std::endl;
         std::cout << "4. Merge Images" << std::endl;
         std::cout << "5. Flip Image" << std::endl;
-        std::cout << "6. Return" << std::endl;
+        std::cout << "6. Crop Image" << std::endl;
+        std::cout << "7. Return" << std::endl;
         std::cout << "enter choice:";
         std::cin >> choice;
         if("1" <= choice and choice <= "6" and choice.length() == 1)
@@ -206,7 +284,10 @@ int main()
                 mergeImages();
                 break;
             case 5:
-                flipImage();
+                flipImage(image);
+                break;
+            case 6:
+                cropImage(image);
                 break;
             default:
                 std::cout << "You did not choose a filter" << std::endl;

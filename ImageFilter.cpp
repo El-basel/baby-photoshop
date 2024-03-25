@@ -380,6 +380,72 @@ void resizeImage(Image& image)
     save(resizedImage);
 }
 
+std::string brightenDarkenChoice(){
+    //take choice from user to brighten or darken
+    //and return value based on choice
+    std::string choice{};
+    while (true)
+    {
+        std::cout << "Do you want to Brighten or Darken the image?" << std::endl;
+        std::cout << "1. Brighten" << std::endl;
+        std::cout << "2. Darken" << std::endl;
+        std::cout << "enter choice: ";
+        std::cin >> choice;
+        if("1" <= choice and choice <= "2" and choice.length() == 1)
+        {
+            return choice;
+        }
+        std::cout << "Please enter a valid choice" << std::endl;
+    }
+}
+
+void brightenOrDarken(Image& image)
+{
+    std::string choice;
+    int color;
+    double multiplierValue;
+    //take choice from user to brighten or darken
+    choice = brightenDarkenChoice();
+
+    //if choice is brighten, set multiplier to 1.5x (increase brightness by 50%)
+    if (choice == "1"){
+        multiplierValue = 1.5;
+    }
+
+    //if choice is darken, set multiplier to 0.5x (decrease brightness by 50%)
+    else{
+        multiplierValue = 0.5;
+    }
+
+    //loop through each pixel and apply brightness multiplier
+    for (int i = 0; i < image.width; ++i){
+
+        for (int j = 0; j < image.height; ++j){
+            
+            for (int k = 0; k < 3; ++k){
+
+                color = image(i, j, k);
+                color *= multiplierValue;
+
+                //make sure color value dont exceed 255 and not go below 0
+                if (color >= 255){
+                    color = 255;
+                }
+
+                else if (color <= 0){
+                    color = 0;
+                }
+
+                else{
+                    image(i, j, k) = color;
+                }
+
+            }
+        }
+    }
+    save(image);
+}
+
 std::string chooseFilter()
 {
     std::string choice{};
@@ -393,10 +459,11 @@ std::string chooseFilter()
         std::cout << "5. Flip Image" << std::endl;
         std::cout << "6. Crop Image" << std::endl;
         std::cout << "7. Resize Image" << std::endl;
-        std::cout << "8. Return" << std::endl;
+        std::cout << "8. Brighten or Darken Image" << std::endl;
+        std::cout << "9. Return" << std::endl;
         std::cout << "enter choice:";
         std::cin >> choice;
-        if("1" <= choice and choice <= "8" and choice.length() == 1)
+        if("1" <= choice and choice <= "9" and choice.length() == 1)
         {
             return choice;
         }
@@ -477,6 +544,9 @@ int main()
                 break;
             case 7:
                 resizeImage(image);
+                break;
+            case 8:
+                brightenOrDarken(image);
                 break;
             default:
                 std::cout << "You did not choose a filter" << std::endl;

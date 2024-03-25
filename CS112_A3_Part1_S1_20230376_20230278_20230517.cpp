@@ -1,6 +1,6 @@
 /* FCAI - Structured Programming - 2024 - Assignment 3 - Part 1
  * Program Description: a program that add filters to a provided image for the user
- *                      The available filters are: gray scale, black and white, merge images, darken or brighten the image
+ *                      The available filters are: gray scale, black and white, merge images, darken or brighten the image and color invertor
  * Program name: CS112_A3_Part1_S1_20230376_20230278_20230517.cpp
  * Author1 and ID and Group: Mahmoud Mohamed El-Basel Hegazy,   20230376, Group A
  * Author2 and ID and Group: Fares Mohammed Abdulhamid Sarhan,  20230278, Group A
@@ -8,6 +8,7 @@
  * Teaching Assistant: Yomna Esmail Fathy
  *
  * Mahmoud Mohamed El-Basel did: Black and White Filter
+ * Youssef Walid did: color invertor
  * */
 
 #include <iostream>
@@ -175,63 +176,20 @@ void mergeImages(Image& image){
     mergeCrop(image, width, height);
 }
 
-void topBottomFlip(Image& flipped, Image& image)
+void invertcolor(Image& image)
 {
-    // iterate through each pixel in the original and flipped image, both of them will be accessed using the same index for the width
-    // but for flipped image the height will be accessed by (main image - j) to make the flipping happen
-    // as index "j" starts from 0 to original image height
-    for (int i = 0; i < image.width; ++i) {
-        for (int j = 0; j < image.height; ++j) {
-            for (int k = 0; k < 3; ++k) {
-                flipped(i, image.height - j - 1, k) = image(i,j,k);
-            }
-        }
-    }
-}
-void leftRightFlip(Image& flipped, Image& image)
-{
-    // iterate through each pixel in the original and flipped image, both of them will be accessed using the same index for the height
-    // but for flipped image the height will be accessed by (main image - i) to make the flipping happen
-    // as index "i" starts from 0 to original image width
-    for (int j = 0; j < image.height; ++j) {
-        for (int i = 0; i < image.width; ++i) {
-            for (int k = 0; k < 3; ++k) {
-                flipped(image.width - i - 1, j, k) = image(i,j,k);
-            }
-        }
-    }
-}
-void flipImage(Image& image)
-{
-    // get the user choice if they want to flip the image vertically or horizontally
-    std::string choice{};
-    std::cout << "--------------------------------------" << std::endl;
-    std::cout << "| How do you like to flip the image? |" << std::endl;
-    std::cout << "--------------------------------------" << std::endl;
-    do {
-        std::cout << "1. Top to Bottom" << std::endl;
-        std::cout << "2. Left to Right" << std::endl;
-        std::cout << "Enter your choice:";
-        std::getline(std::cin >> std::ws, choice);
-        if(choice < "1" or choice > "2" or choice.length() != 1)
+    for (int i = 0; i < image.width; ++i)
+    {
+        for (int j = 0; j < image.height; ++j)
         {
-            std::cout << "please enter a valid choice" << std::endl;
+            for (int k = 0; k < 3; ++k)
+            {
+                //to get the opposite color of the pixel we on
+                image(i, j, k) = 255 - image(i, j, k);
+            }
         }
-    } while (choice < "1" or choice > "2" or choice.length() != 1);
-    // make a new image which its width and height will equal the original image width and height respectively
-    Image flipped(image.width,image.height);
-
-    if(choice == "1")
-    {
-        // if the user wants to flip the image horizontally then call the topBottomFlip with the original image and the flipped as parameters
-        topBottomFlip(flipped, image);
     }
-    else if(choice == "2")
-    {
-        // if the user wants to flip the image vertically then call the topBottomFlip with the original image and the flipped as parameters
-        leftRightFlip(flipped, image);
-    }
-    save(flipped);
+    save(image);
 }
 
 std::string brightenDarkenChoice(){
@@ -312,7 +270,7 @@ std::string chooseFilter()
         std::cout << "1. Grayscale" << std::endl;
         std::cout << "2. Black and White" << std::endl;
         std::cout << "3. Merge Images" << std::endl;
-        std::cout << "4. Flip Image" << std::endl;
+        std::cout << "4. invert colors" << std::endl;
         std::cout << "5. Brighten or Darken Image" << std::endl;
         std::cout << "6. Return" << std::endl;
         std::cout << "enter choice:";
@@ -389,7 +347,7 @@ int main()
                 mergeImages(image);
                 break;
             case 4:
-                flipImage(image);
+                invertcolor(image);
                 break;
             case 5:
                 brightenOrDarken(image);

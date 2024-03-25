@@ -3,7 +3,6 @@
 #include <chrono>
 #include <thread>
 #include <regex>
-#include <algorithm>
 #include "Image_Class.h"
 
 //take the new image name to save it or overwrite the same image
@@ -51,6 +50,21 @@ void save(Image& image)
         }
     } while (saveOption != "save" or saveOption != "discard");
 }
+void invertcolor(Image& image)
+{
+    for (int i = 0; i < image.width; ++i)
+    {
+        for (int j = 0; i < image.height; ++j)
+        {
+            for (int k = 0; k < 3; ++k)
+            {
+                image(i, j, k) = 255 - image(i, j, k);
+            }
+        }
+    }
+    save(image);
+}
+
 // gray scale filter by getting the average of the pixel channels then assigning the average to those channels
 void grayScale(Image& image)
 {
@@ -114,59 +128,10 @@ void invertImage()
 {
 
 }
+void mergeImages()
+{
 
-void mergeCrop(Image& image, int& minWidth, int& minHeight){
-    Image newImage(minWidth, minHeight);
-    for (int i = 0; i < minWidth; ++i){
-        
-        for (int j = 0; j < minHeight; ++j){
-
-            for (int k = 0; k < 3; ++k){
-                newImage(i, j, k) = image(i, j, k);
-            }
-        }
-    }
-    save(newImage);
 }
-
-void mergeImages(Image& image){
-    Image image2;
-
-    while(true){
-        std::string imageName{};
-        std::cout << "Please enter the second image name: " << std::flush;
-        std::getline(std::cin >> std::ws, imageName);
-        try {
-            image2.loadNewImage(imageName);
-        }
-        catch (std::invalid_argument& e) {
-            std::cerr << std::flush;
-            std::cout << e.what() << std::endl;
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            continue;
-        }
-        break;
-    }
-
-    int width = std::min(image.width, image2.width);
-    int height = std::min(image.height, image2.height);
-
-    int color, avg;
-    for (int i = 0; i < width; ++i){
-
-        for (int j = 0; j < height; ++j){
-
-            for (int k = 0; k < 3; ++k){
-
-                color = image(i, j, k) + image2(i, j, k);
-                avg = color / 2;
-                image(i, j, k) = avg;
-            }
-        }
-    }
-    mergeCrop(image, width, height);
-}
-
 void topBottomFlip(Image& flipped, Image& image)
 {
     // iterate through each pixel in the original and flipped image, both of them will be accessed using the same index for the width
@@ -650,10 +615,11 @@ std::string chooseFilter()
         std::cout << "6. Crop Image" << std::endl;
         std::cout << "7. Resize Image" << std::endl;
         std::cout << "8. Brighten or Darken Image" << std::endl;
-        std::cout << "9. Return" << std::endl;
+        std::cout << "9. invert colors" << std::endl;
+        std::cout << "10. Return" << std::endl;
         std::cout << "enter choice:";
         std::cin >> choice;
-        if("1" <= choice and choice <= "9" and choice.length() == 1)
+        if(1 <= stoi(choice) and stoi(choice) <= 10 and choice.length() <= 2)
         {
             return choice;
         }
@@ -726,7 +692,7 @@ int main()
                 invertImage();
                 break;
             case 4:
-                mergeImages(image);
+                mergeImages();
                 break;
             case 5:
                 flipImage(image);
@@ -739,6 +705,9 @@ int main()
                 break;
             case 8:
                 brightenOrDarken(image);
+                break;
+            case 9:
+                invertcolor(image);
                 break;
             default:
                 std::cout << "You did not choose a filter" << std::endl;

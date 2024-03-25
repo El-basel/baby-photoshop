@@ -2,13 +2,15 @@
 #include <stdexcept>
 #include <chrono>
 #include <thread>
+#include <regex>
 #include "Image_Class.h"
 
 //take the new image name to save it or overwrite the same image
 int saveImage(Image& image)
 {
     std::string imageName{};
-    std::cout << "Please enter the image name to save it \nOr type the same name to overwrite it:" << std::flush;
+    std::cout << "Please enter the image name to save it" << std::flush;
+    std::cout << " Or type the same name to overwrite it:" << std::flush;
     std::getline(std::cin >> std::ws, imageName);
     try {
         image.saveImage(imageName);
@@ -29,7 +31,7 @@ void save(Image& image)
     int imageStatus{};
     std::string saveOption{};
     do {
-        std::cout << "Do you want to save the image or discard it?(save/discard)" << std::flush;
+        std::cout << "Do you want to save the image or discard it? (save/discard):" << std::flush;
         std::cin >> saveOption;
         if(saveOption == "save")
         {
@@ -48,7 +50,7 @@ void save(Image& image)
         }
     } while (saveOption != "save" or saveOption != "discard");
 }
-
+// gray scale filter by getting the average of the pixel channels then assigning the average to those channels
 void grayScale(Image& image)
 {
     for (int i = 0; i < image.width; ++i) {
@@ -69,7 +71,9 @@ void grayScale(Image& image)
     }
 
 }
-
+// black and white filter is applied by first making the image gray scale
+// if the channels in the pixel are greater than "127" then make this pixel white
+// if the channels in the pixel are less than or equal "127" then make this pixel black
 void blackAndWhite(Image& image)
 {
     int threshold{127};
@@ -115,6 +119,9 @@ void mergeImages()
 }
 void topBottomFlip(Image& flipped, Image& image)
 {
+    // iterate through each pixel in the original and flipped image, both of them will be accessed using the same index for the width
+    // but for flipped image the height will be accessed by (main image - j) to make the flipping happen
+    // as index "j" starts from 0 to original image height
     for (int i = 0; i < image.width; ++i) {
         for (int j = 0; j < image.height; ++j) {
             for (int k = 0; k < 3; ++k) {
@@ -125,6 +132,9 @@ void topBottomFlip(Image& flipped, Image& image)
 }
 void leftRightFlip(Image& flipped, Image& image)
 {
+    // iterate through each pixel in the original and flipped image, both of them will be accessed using the same index for the height
+    // but for flipped image the height will be accessed by (main image - i) to make the flipping happen
+    // as index "i" starts from 0 to original image width
     for (int j = 0; j < image.height; ++j) {
         for (int i = 0; i < image.width; ++i) {
             for (int k = 0; k < 3; ++k) {
@@ -135,8 +145,11 @@ void leftRightFlip(Image& flipped, Image& image)
 }
 void flipImage(Image& image)
 {
+    // get the user choice if they want to flip the image vertically or horizontally
     std::string choice{};
-    std::cout << "How do you like to flip the image?" << std::endl;
+    std::cout << "--------------------------------------" << std::endl;
+    std::cout << "| How do you like to flip the image? |" << std::endl;
+    std::cout << "--------------------------------------" << std::endl;
     do {
         std::cout << "1. Top to Bottom" << std::endl;
         std::cout << "2. Left to Right" << std::endl;
@@ -147,14 +160,17 @@ void flipImage(Image& image)
             std::cout << "please enter a valid choice" << std::endl;
         }
     } while (choice < "1" or choice > "2" or choice.length() != 1);
+    // make a new image which its width and height will equal the original image width and height respectively
     Image flipped(image.width,image.height);
 
     if(choice == "1")
     {
+        // if the user wants to flip the image horizontally then call the topBottomFlip with the original image and the flipped as parameters
         topBottomFlip(flipped, image);
     }
     else if(choice == "2")
     {
+        // if the user wants to flip the image vertically then call the topBottomFlip with the original image and the flipped as parameters
         leftRightFlip(flipped, image);
     }
     save(flipped);
@@ -162,28 +178,112 @@ void flipImage(Image& image)
 
 void cropImage(Image& image)
 {
-    std::cout << "How do you like to crop the image?" << std::endl;
+    // get the x and y coordinate of the original image that will be the starting point for cropping
+    std::cout << "--------------------------------------" << std::endl;
+    std::cout << "| How do you like to crop the image? |" << std::endl;
+    std::cout << "--------------------------------------" << std::endl;
+    std::regex reg{"[^0-9]+"};
+    std::string xCoord, yCoord,widthEntered, heightEntered;
     int x,y,width,height;
-    while (true)
-    {
-        std::cout << "Enter the coordinates of the starting point" << std::endl;
-        std::cout << "Enter the x-coordinates first then leave a space then enter the y-coordinates:";
-        std::cin >> x >> y;
-        if(x > image.width or y > image.height or x < 0 or y < 0)
-        {
+
+    std::cout << "Enter the coordinates of the starting point" << std::endl;
+    while (true) {
+        std::cout << "Enter the x-coordinates:" << std::flush;
+        std::getline(std::cin >> std::ws, xCoord);
+        if (std::regex_search(xCoord, reg)) {
             std::cout << "Please enter a valid coordinates" << std::endl;
             continue;
         }
-        std::cout << "Enter the dimensions of the cropping" << std::endl;
-        std::cout << "Enter the width first then leave a space then enter the height:";
-        std::cin >> width >> height;
-        if(width > image.width or height > image.height or width < 0 or height < 0)
-        {
-            std::cout << "Please enter a valid coordinates" << std::endl;
+        try {
+            x = std::stoi(xCoord);
+        }
+        catch (std::invalid_argument &) {
+            std::cout << "Please enter a valid coordinate" << std::endl;
+            continue;
+        }
+        // check if the x coordinates the negative or greater than image width
+        if (x > image.width or x < 0) {
+            std::cout << "Please enter a valid coordinate starting from 0 to image width" << std::endl;
             continue;
         }
         break;
     }
+    while (true)
+    {
+        std::cout << "enter the y-coordinates:" << std::flush;
+        std::getline(std::cin >> std::ws, yCoord);
+        if(std::regex_search(yCoord,reg))
+        {
+            std::cout << "Please enter a valid coordinate" << std::endl;
+            continue;
+        }
+        try {
+            y = std::stoi(yCoord);
+        }
+        catch (std::invalid_argument &) {
+            std::cout << "Please enter a valid coordinate" << std::endl;
+            continue;
+        }
+
+        // check if the y coordinate is less than zero or greater than the image height
+        if (y > image.height or y < 0) {
+            std::cout << "Please enter a valid coordinate" << std::endl;
+            continue;
+        }
+        break;
+    }
+    std::cout << "Enter the dimensions of the cropping" << std::endl;
+    while (true) {
+        std::cout << "Enter the desired width for the copped image:" << std::flush;
+        std::getline(std::cin >> std::ws, widthEntered);
+        if (std::regex_search(widthEntered, reg)) {
+            std::cout << "Please enter a valid width" << std::endl;
+            continue;
+        }
+        try
+        {
+            width = std::stoi(widthEntered);
+        }
+        catch (std::invalid_argument&) {
+            std::cout << "Please enter a valid width" << std::endl;
+            continue;
+        }
+        // check if the width is less than zero or greater than the image width
+        if(width > image.width or width < 0)
+        {
+            std::cout << "width has to be a positive integer starting from 0 to the original image width" << std::endl;
+            continue;
+        }
+        break;
+    }
+    while (true)
+    {
+        std::cout << "Enter the desired height for the copped image:" << std::flush;
+        std::getline(std::cin >> std::ws, heightEntered);
+        if(std::regex_search(heightEntered, reg))
+        {
+            std::cout << "Please enter a valid height" << std::endl;
+            continue;
+        }
+        try
+        {
+            height = std::stoi(heightEntered);
+        }
+        catch (std::invalid_argument&) {
+            std::cout << "Please enter a valid height" << std::endl;
+            continue;
+        }
+        // check if the height is less than zero or greater than the image height
+        if(height > image.height or height < 0)
+        {
+            std::cout << "height has to be a positive integer starting from 0 to the original image height" << std::endl;
+            continue;
+        }
+        break;
+    }
+    // iterate though the width and height of the cropped image
+    // start iterating on the original image form the entered x and y coordinates
+    // define new variable (iC,jC) to index the cropped image from the starting point (0,0)
     Image cropped(width,height);
     for (int i = x , iC = 0; i < x + width - 1; ++i, ++iC) {
         for (int j = y , jC = 0; j < y + height - 1; ++j, ++jC) {
@@ -197,8 +297,10 @@ void cropImage(Image& image)
 
 int resizeOptions(double& xResize, double& yResize, Image& image)
 {
+    // check if the user wants to enter dimensions or ratio of reduction or ratio of increase
     std::string x,y;
     std::string option{};
+    std::regex reg{"[^0-9]+"};
     int choice{};
     std::cout << "Do you want to enter a new dimensions or "
                  "enter a ratio of reduction or increase?" << std::endl;
@@ -208,6 +310,11 @@ int resizeOptions(double& xResize, double& yResize, Image& image)
         std::cout << "3. ratio of increase" << std::endl;
         std::cout << "Enter your choice:" << std::flush;
         std::getline(std::cin >> std::ws, option);
+        if(std::regex_search(option,reg))
+        {
+            std::cout << "Please enter a valid choice" << std::endl;
+            continue;
+        }
         try {
             choice = std::stoi(option);
         } catch (std::invalid_argument&) {
@@ -224,10 +331,15 @@ int resizeOptions(double& xResize, double& yResize, Image& image)
     if(choice == 1)
     {
         std::string dimension{};
-        std::cout << "Please enter the X dimension:" << std::flush;
         while (true)
         {
+            std::cout << "Please enter the X dimension:" << std::flush;
             std::getline(std::cin >> std::ws, dimension);
+            if(std::regex_search(dimension,reg))
+            {
+                std::cout << "Please enter a valid dimension" << std::endl;
+                continue;
+            }
             try {
                 xResize = std::stoi(dimension);
                 break;
@@ -237,10 +349,15 @@ int resizeOptions(double& xResize, double& yResize, Image& image)
             }
         }
 
-        std::cout << "Please enter the Y dimension:" << std::flush;
         while (true)
         {
+            std::cout << "Please enter the Y dimension:" << std::flush;
             std::getline(std::cin >> std::ws, dimension);
+            if(std::regex_search(dimension,reg))
+            {
+                std::cout << "Please enter a valid dimension" << std::endl;
+                continue;
+            }
             try {
                 yResize = std::stoi(dimension);
                 break;
@@ -258,6 +375,11 @@ int resizeOptions(double& xResize, double& yResize, Image& image)
         {
             std::cout << "Enter the ratio of reduction in percent for X:" << std::flush;
             std::getline(std::cin >> std::ws, dimension);
+            if(std::regex_search(dimension,reg))
+            {
+                std::cout << "Please enter a valid ratio" << std::endl;
+                continue;
+            }
             try {
                 xResize = std::stoi(dimension);
                 if(xResize > 100 or xResize < 0)
@@ -276,6 +398,11 @@ int resizeOptions(double& xResize, double& yResize, Image& image)
         {
             std::cout << "Enter the ratio of reduction in percent for Y:" << std::flush;
             std::getline(std::cin >> std::ws, dimension);
+            if(std::regex_search(dimension,reg))
+            {
+                std::cout << "Please enter a valid ratio" << std::endl;
+                continue;
+            }
             try {
                 yResize = std::stoi(dimension);
                 if(yResize > 100 or yResize < 0)
@@ -298,6 +425,11 @@ int resizeOptions(double& xResize, double& yResize, Image& image)
         {
             std::cout << "Enter the ratio of increase for X:" << std::flush;
             std::getline(std::cin >> std::ws, dimension);
+            if(std::regex_search(dimension,reg))
+            {
+                std::cout << "Please enter a valid ratio" << std::endl;
+                continue;
+            }
             try {
                 xResize = std::stoi(dimension);
                 if(xResize < 0)
@@ -315,6 +447,11 @@ int resizeOptions(double& xResize, double& yResize, Image& image)
         {
             std::cout << "Enter the ratio of increase in percent for Y:" << std::flush;
             std::getline(std::cin >> std::ws, dimension);
+            if(std::regex_search(dimension,reg))
+            {
+                std::cout << "Please enter a valid ratio" << std::endl;
+                continue;
+            }
             try {
                 yResize = std::stoi(dimension);
                 if(yResize < 0)
@@ -382,10 +519,13 @@ void resizeImage(Image& image)
 
 std::string chooseFilter()
 {
+    // get the user choice for filters
     std::string choice{};
     while (true)
     {
-        std::cout << "what filter do you want use?" << std::endl;
+        std::cout << "--------------------------------" << std::endl;
+        std::cout << "| what filter do you want use? |" << std::endl;
+        std::cout << "--------------------------------" << std::endl;
         std::cout << "1. Grayscale" << std::endl;
         std::cout << "2. Black and White" << std::endl;
         std::cout << "3. Invert Image" << std::endl;
@@ -407,8 +547,10 @@ std::string chooseFilter()
 int getImage(Image& image)
 {
     std::string imageName{};
+    std::cout << "-------------------------------------------------" << std::endl;
     std::cout << "Please enter an image name or type exit to close:" << std::flush;
     std::getline(std::cin >> std::ws, imageName);
+    std::cout << "-------------------------------------------------" << std::endl;
     if(imageName == "exit")
     {
         std::cout << "------------" << std::endl;

@@ -195,6 +195,191 @@ void cropImage(Image& image)
     save(cropped);
 }
 
+int resizeOptions(double& xResize, double& yResize, Image& image)
+{
+    std::string x,y;
+    std::string option{};
+    int choice{};
+    std::cout << "Do you want to enter a new dimensions or "
+                 "enter a ratio of reduction or increase?" << std::endl;
+    do {
+        std::cout << "1. new dimensions" << std::endl;
+        std::cout << "2. ratio of reduction" << std::endl;
+        std::cout << "3. ratio of increase" << std::endl;
+        std::cout << "Enter your choice:" << std::flush;
+        std::getline(std::cin >> std::ws, option);
+        try {
+            choice = std::stoi(option);
+        } catch (std::invalid_argument&) {
+            std::cout << "Please enter a valid choice" << std::endl;
+            continue;
+        }
+        if(choice < 1 or choice > 3)
+        {
+            std::cout << "Please enter a valid choice" << std::endl;
+        }
+
+    } while (choice < 1 or choice > 3);
+
+    if(choice == 1)
+    {
+        std::string dimension{};
+        std::cout << "Please enter the X dimension:" << std::flush;
+        while (true)
+        {
+            std::getline(std::cin >> std::ws, dimension);
+            try {
+                xResize = std::stoi(dimension);
+                break;
+            } catch (std::invalid_argument&) {
+                std::cout << "Please enter a valid choice" << std::endl;
+                continue;
+            }
+        }
+
+        std::cout << "Please enter the Y dimension:" << std::flush;
+        while (true)
+        {
+            std::getline(std::cin >> std::ws, dimension);
+            try {
+                yResize = std::stoi(dimension);
+                break;
+            } catch (std::invalid_argument&) {
+                std::cout << "Please enter a valid choice" << std::endl;
+                continue;
+            }
+        }
+        return 1;
+    }
+    else if(choice == 2)
+    {
+        std::string dimension{};
+        while (true)
+        {
+            std::cout << "Enter the ratio of reduction in percent for X:" << std::flush;
+            std::getline(std::cin >> std::ws, dimension);
+            try {
+                xResize = std::stoi(dimension);
+                if(xResize > 100 or xResize < 0)
+                {
+                    throw std::invalid_argument("");
+                }
+                break;
+            } catch (std::invalid_argument&) {
+                std::cout << "Please enter a valid percent between 0 and 100" << std::endl;
+                continue;
+            }
+        }
+
+        xResize = image.width - std::floor(double(image.width) * xResize/100.0);
+        while (true)
+        {
+            std::cout << "Enter the ratio of reduction in percent for Y:" << std::flush;
+            std::getline(std::cin >> std::ws, dimension);
+            try {
+                yResize = std::stoi(dimension);
+                if(yResize > 100 or yResize < 0)
+                {
+                    throw std::invalid_argument("");
+                }
+                break;
+            } catch (std::invalid_argument&) {
+                std::cout << "Please enter a valid percent between 0 and 100" << std::endl;
+                continue;
+            }
+        }
+        yResize = image.height - std::floor(double(image.height) * yResize/100.0);
+        return 2;
+    }
+    else if(choice == 3)
+    {
+        std::string dimension{};
+        while (true)
+        {
+            std::cout << "Enter the ratio of increase for X:" << std::flush;
+            std::getline(std::cin >> std::ws, dimension);
+            try {
+                xResize = std::stoi(dimension);
+                if(xResize < 0)
+                {
+                    throw std::invalid_argument("");
+                }
+                break;
+            } catch (std::invalid_argument&) {
+                std::cout << "Please enter a valid percent between 0 and 100" << std::endl;
+                continue;
+            }
+        }
+        xResize = std::floor(double(image.width) * xResize/100.0) + image.width;
+        while (true)
+        {
+            std::cout << "Enter the ratio of increase in percent for Y:" << std::flush;
+            std::getline(std::cin >> std::ws, dimension);
+            try {
+                yResize = std::stoi(dimension);
+                if(yResize < 0)
+                {
+                    throw std::invalid_argument("");
+                }
+                break;
+            } catch (std::invalid_argument&) {
+                std::cout << "Please enter a valid percent between 0 and 100" << std::endl;
+                continue;
+            }
+        }
+        yResize = std::floor(double(image.height) * yResize/100.0) + image.height;
+        return 3;
+    }
+    return 0;
+}
+void resizeImage(Image& image)
+{
+    double xResize{};
+    double yResize{};
+    int option = resizeOptions(xResize,yResize,image);
+    Image resizedImage(xResize,yResize);
+    if(option == 1 or option == 3)
+    {
+        xResize = std::ceil(double (xResize)/image.width * 100) / 100 ;
+        yResize = std::ceil(double (yResize)/image.height * 100) / 100;
+    }
+    else if(option == 2)
+    {
+        xResize = image.width - xResize;
+        xResize = std::ceil(double(xResize) / image.width * 100) / 100;
+        yResize = image.height - yResize;
+        yResize = std::ceil(double(yResize) / image.height * 100) / 100;
+    }
+    int originalX{};
+    int originalY{};
+    for (int i = 0; i < resizedImage.width; ++i) {
+        for (int j = 0; j < resizedImage.height; ++j) {
+                originalX = std::floor(i / xResize);
+                originalY = std::floor(j / yResize);
+                if(originalX < 0)
+                {
+                    originalX = 0;
+                }
+                else if(originalX > image.width - 1)
+                {
+                    originalX = image.width - 1;
+                }
+                if(originalY < 0)
+                {
+                    originalY = 0;
+                }
+                else if(originalY > image.height - 1)
+                {
+                    originalY = image.height - 1;
+                }
+            for (int k = 0; k < 3; ++k) {
+                resizedImage(i,j,k) = image(originalX,originalY,k);
+            }
+        }
+    }
+    save(resizedImage);
+}
+
 std::string chooseFilter()
 {
     std::string choice{};
@@ -207,10 +392,11 @@ std::string chooseFilter()
         std::cout << "4. Merge Images" << std::endl;
         std::cout << "5. Flip Image" << std::endl;
         std::cout << "6. Crop Image" << std::endl;
-        std::cout << "7. Return" << std::endl;
+        std::cout << "7. Resize Image" << std::endl;
+        std::cout << "8. Return" << std::endl;
         std::cout << "enter choice:";
         std::cin >> choice;
-        if("1" <= choice and choice <= "6" and choice.length() == 1)
+        if("1" <= choice and choice <= "8" and choice.length() == 1)
         {
             return choice;
         }
@@ -288,6 +474,9 @@ int main()
                 break;
             case 6:
                 cropImage(image);
+                break;
+            case 7:
+                resizeImage(image);
                 break;
             default:
                 std::cout << "You did not choose a filter" << std::endl;

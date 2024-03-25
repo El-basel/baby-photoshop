@@ -3,6 +3,7 @@
 #include <chrono>
 #include <thread>
 #include <regex>
+#include <algorithm>
 #include "Image_Class.h"
 
 //take the new image name to save it or overwrite the same image
@@ -197,10 +198,59 @@ void invertImage()
 {
 
 }
-void mergeImages()
-{
 
+void mergeCrop(Image& image, int& minWidth, int& minHeight){
+    Image newImage(minWidth, minHeight);
+    for (int i = 0; i < minWidth; ++i){
+        
+        for (int j = 0; j < minHeight; ++j){
+
+            for (int k = 0; k < 3; ++k){
+                newImage(i, j, k) = image(i, j, k);
+            }
+        }
+    }
+    save(newImage);
 }
+
+void mergeImages(Image& image){
+    Image image2;
+
+    while(true){
+        std::string imageName{};
+        std::cout << "Please enter the second image name: " << std::flush;
+        std::getline(std::cin >> std::ws, imageName);
+        try {
+            image2.loadNewImage(imageName);
+        }
+        catch (std::invalid_argument& e) {
+            std::cerr << std::flush;
+            std::cout << e.what() << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            continue;
+        }
+        break;
+    }
+
+    int width = std::min(image.width, image2.width);
+    int height = std::min(image.height, image2.height);
+
+    int color, avg;
+    for (int i = 0; i < width; ++i){
+
+        for (int j = 0; j < height; ++j){
+
+            for (int k = 0; k < 3; ++k){
+
+                color = image(i, j, k) + image2(i, j, k);
+                avg = color / 2;
+                image(i, j, k) = avg;
+            }
+        }
+    }
+    mergeCrop(image, width, height);
+}
+
 void topBottomFlip(Image& flipped, Image& image)
 {
     // iterate through each pixel in the original and flipped image, both of them will be accessed using the same index for the width
@@ -762,7 +812,7 @@ int main()
                 invertImage();
                 break;
             case 4:
-                mergeImages();
+                mergeImages(image);
                 break;
             case 5:
                 flipImage(image);

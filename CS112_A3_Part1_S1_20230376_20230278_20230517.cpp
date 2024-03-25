@@ -1,3 +1,15 @@
+/* FCAI - Structured Programming - 2024 - Assignment 3 - Part 1
+ * Program Description: a program that add filters to a provided image for the user
+ *                      The available filters are: gray scale, black and white, merge images, darken or brighten the image
+ * Program name: CS112_A3_Part1_S1_20230376_20230278_20230517.cpp
+ * Author1 and ID and Group: Mahmoud Mohamed El-Basel Hegazy,   20230376, Group A
+ * Author2 and ID and Group: Fares Mohammed Abdulhamid Sarhan,  20230278, Group A
+ * Author3 and ID and Group: Youssef Walid Mohamed Shaker,      20230517, Group A
+ * Teaching Assistant: Yomna Esmail Fathy
+ *
+ * Mahmoud Mohamed El-Basel did: Black and White Filter
+ * */
+
 #include <iostream>
 #include <stdexcept>
 #include <chrono>

@@ -50,6 +50,90 @@ void save(Image& image)
         }
     } while (saveOption != "save" or saveOption != "discard");
 }
+void image_rotation(Image& image)
+{
+    Image finalimage;
+    std::string choice;
+    while (true)
+    {
+        std::cout << "----------------------------------------------------------------" << std::endl;
+        std::cout << "|do you want to rotate the image by 90, 180 or 270 degrees? |" << std::endl;
+        std::cout << "----------------------------------------------------------------" << std::endl;
+        std::cin >> choice;
+        if (choice == "90" || choice == "180" || choice == "270")
+        {
+            break;
+        }
+        else std::cout << "invalid choice" << std::endl;
+    }
+    if (choice == "90")
+    {
+        Image newimage(image.height, image.width);
+        int n = image.height - 1;
+        for (int i = 0; i < image.width; ++i)
+        {
+            for (int j = 0; j < image.height; ++j)
+            {
+                for (int k = 0; k < 3; ++k)
+                {
+                    newimage(n - j, i, k) = image(i, j, k);
+                }
+            }
+        }
+        save(newimage);
+    }    
+    else if (choice == "180")
+    {
+        Image newimage(image.width, image.height);
+        int n = image.width - 1;
+        int y = image.height - 1;
+        for (int i = 0; i < image.width; ++i)
+        {
+            for (int j = 0; j < image.height; ++j)
+            {
+                for (int k = 0; k < 3; ++k)
+                {
+                    newimage(n - i, y - j, k) = image(i, j, k);
+                }
+            }
+        }
+        save(newimage);
+    }
+    else if (choice == "270")
+    {
+        Image newimage(image.height, image.width);
+        int n = image.width - 1;
+        for (int i = 0; i < image.width; ++i)
+        {
+            for (int j = 0; j < image.height; ++j)
+            {
+                for (int k = 0; k < 3; ++k)
+                {
+                    newimage(j, n - i, k) = image(i, j, k);
+                }
+            }
+        }
+        save(newimage);
+    }
+
+}
+
+void invertcolor(Image& image)
+{
+    for (int i = 0; i < image.width; ++i)
+    {
+        for (int j = 0; j < image.height; ++j)
+        {
+            for (int k = 0; k < 3; ++k)
+            {
+                //to get the opposite color of the pixel we on
+                image(i, j, k) = 255 - image(i, j, k);
+            }
+        }
+    }
+    save(image);
+}
+
 // gray scale filter by getting the average of the pixel channels then assigning the average to those channels
 void grayScale(Image& image)
 {
@@ -600,10 +684,12 @@ std::string chooseFilter()
         std::cout << "6. Crop Image" << std::endl;
         std::cout << "7. Resize Image" << std::endl;
         std::cout << "8. Brighten or Darken Image" << std::endl;
-        std::cout << "9. Return" << std::endl;
+        std::cout << "9. invert colors" << std::endl;
+        std::cout << "10. rotate image" << std::endl;
+        std::cout << "11. Return" << std::endl;
         std::cout << "enter choice:";
         std::cin >> choice;
-        if("1" <= choice and choice <= "9" and choice.length() == 1)
+        if(1 <= stoi(choice) and stoi(choice) <= 11 and choice.length() <= 2)
         {
             return choice;
         }
@@ -689,6 +775,12 @@ int main()
                 break;
             case 8:
                 brightenOrDarken(image);
+                break;
+            case 9:
+                invertcolor(image);
+                break;
+            case 10:
+                image_rotation(image);
                 break;
             default:
                 std::cout << "You did not choose a filter" << std::endl;

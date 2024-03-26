@@ -717,7 +717,7 @@ void brightenOrDarken(Image& image)
     save(image);
 }
 
-std::string chooseFilter()
+int chooseFilter()
 {
     // get the user choice for filters
     std::string choice{};
@@ -738,12 +738,19 @@ std::string chooseFilter()
         std::cout << "10. rotate image" << std::endl;
         std::cout << "11. Return" << std::endl;
         std::cout << "enter choice:";
-        std::cin >> choice;
-        if(1 <= stoi(choice) and stoi(choice) <= 11 and choice.length() <= 2)
+        std::getline(std::cin >> std::ws, choice);
+        if(choice.length() > 2)
         {
-            return choice;
+            std::cout << "Please enter a valid choice" << std::endl;
         }
-        std::cout << "Please enter a valid choice" << std::endl;
+        try {
+            int filter{};
+            filter = std::stoi(choice);
+            return filter;
+        }
+        catch (std::invalid_argument&) {
+            std::cout << "Please enter a valid choice" << std::endl;
+        }
     }
 }
 
@@ -782,11 +789,10 @@ int main()
     //- Ask the user about the image name that they want to load it
     //- load the image in "image"
     //- define "imageStatus" and use it to know if the operation of loading the image succeeded, failed, or the user wants to exit
-    std::string imageName{};
-    Image image;
     int imageStatus{};
     while (true)
     {
+        Image image;
         imageStatus = getImage(image);
         if(imageStatus == 0)
         {
@@ -798,9 +804,9 @@ int main()
             continue;
         }
         // check what filters does the user want
-        std::string choice{};
+        int choice{};
         choice = chooseFilter();
-        switch (std::stoi(choice)) {
+        switch (choice) {
             case 1:
                 grayScale(image);
                 save(image);

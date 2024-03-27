@@ -1,13 +1,13 @@
 /* FCAI - Structured Programming - 2024 - Assignment 3 - Part 1
  * Program Description: a program that add filters to a provided image for the user
- *                      The available filters are: gray scale, black and white, merge images, darken or brighten the image and color invertor
+ *                      The available filters are: gray scale, black and white, flip the image, darken or brighten the image and color invertor
  * Program name: CS112_A3_Part1_S1_20230376_20230278_20230517.cpp
  * Author1 and ID and Group: Mahmoud Mohamed El-Basel Hegazy,   20230376, Group A
  * Author2 and ID and Group: Fares Mohammed Abdulhamid Sarhan,  20230278, Group A
  * Author3 and ID and Group: Youssef Walid Mohamed Shaker,      20230517, Group A
  * Teaching Assistant: Yomna Esmail Fathy
  *
- * Mahmoud Mohamed El-Basel did: Black and White Filter
+ * Mahmoud Mohamed El-Basel did: Black and White Filter, and flip the image
  * Youssef Walid did: color invertor
  * Fares Mohammed did: Brighten and darken, and grayscale filters
  * */
@@ -43,6 +43,8 @@ int saveImage(Image& image)
 }
 void save(Image& image)
 {
+    // ask the user if they want to save the image or discard it
+    // and validate that they entered the right extension
     int imageStatus{};
     std::string saveOption{};
     do {
@@ -185,7 +187,7 @@ void flipImage(Image& image)
     }
     save(flipped);
 }
-
+// get each pixel in the image and subtract 255 from it
 void invertcolor(Image& image)
 {
     for (int i = 0; i < image.width; ++i)

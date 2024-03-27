@@ -10,6 +10,8 @@
  * Mahmoud Mohamed El-Basel did: Black and White Filter, and flip the image
  * Youssef Walid did: color invertor
  * Fares Mohammed did: Brighten and darken, and grayscale filters
+ *
+ * system diagram: https://drive.google.com/file/d/1TVGHaVuiUS-xxS0q51B1S-3m1zOisO0s/view?usp=sharing
  * */
 
 #include <iostream>

@@ -107,7 +107,10 @@ void image_rotation(Image& image)
                 }
             }
         }
-        save(newimage);
+        std::swap(image.imageData, newimage.imageData);
+        std::swap(image.width, newimage.width);
+        std::swap(image.height, newimage.height);
+        save(image);
     }
     else if (choice == "180")
     {
@@ -124,7 +127,11 @@ void image_rotation(Image& image)
                 }
             }
         }
-        save(newimage);
+        std::swap(image.imageData, newimage.imageData);
+        std::swap(image.width, newimage.width);
+        std::swap(image.height, newimage.height);
+        save(image);
+
     }
     else if (choice == "270")
     {
@@ -140,7 +147,10 @@ void image_rotation(Image& image)
                 }
             }
         }
-        save(newimage);
+        std::swap(image.imageData, newimage.imageData);
+        std::swap(image.width, newimage.width);
+        std::swap(image.height, newimage.height);
+        save(image);
     }
 
 }
@@ -218,7 +228,6 @@ void blackAndWhite(Image& image)
             }
         }
     }
-
 }
 
 void mergeCrop(Image& image, int& minWidth, int& minHeight){
@@ -452,7 +461,10 @@ void cropImage(Image& image)
             }
         }
     }
-    save(cropped);
+    std::swap(image.imageData, cropped.imageData);
+    std::swap(image.width, cropped.width);
+    std::swap(image.height, cropped.height);
+    save(image);
 }
 
 int resizeOptions(double& xResize, double& yResize, Image& image)
@@ -628,7 +640,7 @@ int resizeOptions(double& xResize, double& yResize, Image& image)
     }
     return 0;
 }
-void resizeImage(Image& image,Image& mergeTmp, double xResize = 0, double yResize = 0,std::string calledBy = "other")
+void resizeImage(Image& image, double xResize = 0, double yResize = 0,std::string calledBy = "other")
 {
     int option{1};
     if(xResize == 0 and yResize == 0)
@@ -892,7 +904,6 @@ int main()
         // check what filters does the user want
         int choice{};
         choice = chooseFilter();
-        Image mergeTmp;
         switch (choice) {
             case 1:
                 grayScale(image);
@@ -915,7 +926,7 @@ int main()
                 cropImage(image);
                 break;
             case 7:
-                resizeImage(image,mergeTmp,0,0,"main");
+                resizeImage(image,0,0,"main");
                 break;
             case 8:
                 brightenOrDarken(image);

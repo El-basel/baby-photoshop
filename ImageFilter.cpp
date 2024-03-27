@@ -6,6 +6,27 @@
 #include <algorithm>
 #include <cstring>
 #include "Image_Class.h"
+bool wantToLoadNew()
+{
+    while(true)
+    {
+        std::string choice{};
+        std::cout << "do You want to load a new image?(yes/no) :" << std::flush;
+        std::getline(std::cin >> std::ws, choice);
+        for (int i = 0; i < choice.length(); ++i) {
+            choice[i] = std::tolower(choice[i]);
+        }
+        if(choice == "yes")
+        {
+            return true;
+        }
+        else if(choice == "no")
+        {
+            return false;
+        }
+        std::cout << "Please enter a valid option" << std::endl;
+    }
+}
 
 //take the new image name to save it or overwrite the same image
 int saveImage(Image& image)
@@ -82,7 +103,10 @@ void image_rotation(Image& image)
                 }
             }
         }
-        save(newimage);
+        std::swap(image.imageData, newimage.imageData);
+        std::swap(image.width, newimage.width);
+        std::swap(image.height, newimage.height);
+        save(image);
     }    
     else if (choice == "180")
     {
@@ -99,7 +123,10 @@ void image_rotation(Image& image)
                 }
             }
         }
-        save(newimage);
+        std::swap(image.imageData, newimage.imageData);
+        std::swap(image.width, newimage.width);
+        std::swap(image.height, newimage.height);
+        save(image);
     }
     else if (choice == "270")
     {
@@ -115,7 +142,10 @@ void image_rotation(Image& image)
                 }
             }
         }
-        save(newimage);
+        std::swap(image.imageData, newimage.imageData);
+        std::swap(image.width, newimage.width);
+        std::swap(image.height, newimage.height);
+        save(image);
     }
 
 }
@@ -193,7 +223,6 @@ void blackAndWhite(Image& image)
             }
         }
     }
-    save(image);
 }
 
 void mergeCrop(Image& image, int& minWidth, int& minHeight){
@@ -304,7 +333,9 @@ void flipImage(Image& image)
         // if the user wants to flip the image vertically then call the topBottomFlip with the original image and the flipped as parameters
         leftRightFlip(flipped, image);
     }
-    save(flipped);
+    std::swap(image.imageData, flipped.imageData);
+
+    save(image);
 }
 
 void cropImage(Image& image)
@@ -423,7 +454,10 @@ void cropImage(Image& image)
             }
         }
     }
-    save(cropped);
+    std::swap(image.imageData, cropped.imageData);
+    std::swap(image.width, cropped.width);
+    std::swap(image.height, cropped.height);
+    save(image);
 }
 
 int resizeOptions(double& xResize, double& yResize, Image& image)
@@ -599,7 +633,7 @@ int resizeOptions(double& xResize, double& yResize, Image& image)
     }
     return 0;
 }
-void resizeImage(Image& image,Image& mergeTmp, double xResize = 0, double yResize = 0,std::string calledBy = "other")
+void resizeImage(Image& image, double xResize = 0, double yResize = 0,std::string calledBy = "other")
 {
     int option{1};
     if(xResize == 0 and yResize == 0)
@@ -652,10 +686,9 @@ void resizeImage(Image& image,Image& mergeTmp, double xResize = 0, double yResiz
     }
     else
     {
-        mergeTmp.width = resizedImage.width;
-        mergeTmp.height = resizedImage.height;
-        mergeTmp.imageData = new unsigned char[resizedImage.width * resizedImage.height * 3];
-        std::memcpy(mergeTmp.imageData, resizedImage.imageData, resizedImage.width * resizedImage.height * 3);
+        std::swap(image.imageData, resizedImage.imageData);
+        std::swap(image.width, resizedImage.width);
+        std::swap(image.height, resizedImage.height);
     }
 }
 
@@ -744,6 +777,7 @@ int chooseFilter()
         std::cout << "8. Brighten or Darken Image" << std::endl;
         std::cout << "9. rotate image" << std::endl;
         std::cout << "10. Return" << std::endl;
+        std::cout << "11. Exit the program" << std::endl;
         std::cout << "enter choice:";
         std::getline(std::cin >> std::ws, choice);
         if(choice.length() > 2)
@@ -796,19 +830,38 @@ int main()
     //- Ask the user about the image name that they want to load it
     //- load the image in "image"
     //- define "imageStatus" and use it to know if the operation of loading the image succeeded, failed, or the user wants to exit
-    int imageStatus{};
+    int imageStatus{1};
+    Image image;
     while (true)
     {
-        Image image;
         imageStatus = getImage(image);
         if(imageStatus == 0)
         {
-
+            return 0;
+        }
+        else if(imageStatus == 1)
+        {
             break;
         }
-        else if(imageStatus == -1)
+    }
+    bool loadNewImage{false};
+    while (true)
+    {
+        if(loadNewImage)
         {
-            continue;
+            save(image);
+            while (true)
+            {
+                imageStatus = getImage(image);
+                if(imageStatus == 0)
+                {
+                    return 0;
+                }
+                else if(imageStatus == 1)
+                {
+                    break;
+                }
+            }
         }
         // check what filters does the user want
         int choice{};
@@ -821,6 +874,7 @@ int main()
                 break;
             case 2:
                 blackAndWhite(image);
+                save(image);
                 break;
             case 3:
                 invertcolor(image);
@@ -835,7 +889,7 @@ int main()
                 cropImage(image);
                 break;
             case 7:
-                resizeImage(image,mergeTmp,0,0,"main");
+                resizeImage(image,0,0,"main");
                 break;
             case 8:
                 brightenOrDarken(image);
@@ -843,9 +897,16 @@ int main()
             case 9:
                 image_rotation(image);
                 break;
+            case 11:
+                save(image);
+                std::cout << "------------" << std::endl;
+                std::cout << "| GOOD BYE |" << std::endl;
+                std::cout << "------------" << std::endl;
+                return 0;
             default:
                 std::cout << "You did not choose a filter" << std::endl;
                 save(image);
         }
+        loadNewImage = wantToLoadNew();
     }
 }

@@ -4,6 +4,7 @@
 #include <thread>
 #include <regex>
 #include <algorithm>
+#include <cstring>
 #include "Image_Class.h"
 
 //take the new image name to save it or overwrite the same image
@@ -193,10 +194,6 @@ void blackAndWhite(Image& image)
         }
     }
     save(image);
-}
-void invertImage()
-{
-
 }
 
 void mergeCrop(Image& image, int& minWidth, int& minHeight){
@@ -436,6 +433,7 @@ int resizeOptions(double& xResize, double& yResize, Image& image)
     std::string option{};
     std::regex reg{"[^0-9]+"};
     int choice{};
+
     std::cout << "Do you want to enter a new dimensions or "
                  "enter a ratio of reduction or increase?" << std::endl;
     do {
@@ -444,19 +442,17 @@ int resizeOptions(double& xResize, double& yResize, Image& image)
         std::cout << "3. ratio of increase" << std::endl;
         std::cout << "Enter your choice:" << std::flush;
         std::getline(std::cin >> std::ws, option);
-        if(std::regex_search(option,reg))
-        {
+        if (std::regex_search(option, reg)) {
             std::cout << "Please enter a valid choice" << std::endl;
             continue;
         }
         try {
             choice = std::stoi(option);
-        } catch (std::invalid_argument&) {
+        } catch (std::invalid_argument &) {
             std::cout << "Please enter a valid choice" << std::endl;
             continue;
         }
-        if(choice < 1 or choice > 3)
-        {
+        if (choice < 1 or choice > 3) {
             std::cout << "Please enter a valid choice" << std::endl;
         }
 
@@ -603,11 +599,13 @@ int resizeOptions(double& xResize, double& yResize, Image& image)
     }
     return 0;
 }
-void resizeImage(Image& image)
+void resizeImage(Image& image,Image& mergeTmp, double xResize = 0, double yResize = 0,std::string calledBy = "other")
 {
-    double xResize{};
-    double yResize{};
-    int option = resizeOptions(xResize,yResize,image);
+    int option{1};
+    if(xResize == 0 and yResize == 0)
+    {
+        option = resizeOptions(xResize,yResize,image);
+    }
     Image resizedImage(xResize,yResize);
     if(option == 1 or option == 3)
     {
@@ -648,7 +646,17 @@ void resizeImage(Image& image)
             }
         }
     }
-    save(resizedImage);
+    if(calledBy == "main")
+    {
+        save(resizedImage);
+    }
+    else
+    {
+        mergeTmp.width = resizedImage.width;
+        mergeTmp.height = resizedImage.height;
+        mergeTmp.imageData = new unsigned char[resizedImage.width * resizedImage.height * 3];
+        std::memcpy(mergeTmp.imageData, resizedImage.imageData, resizedImage.width * resizedImage.height * 3);
+    }
 }
 
 std::string brightenDarkenChoice(){
@@ -728,15 +736,14 @@ int chooseFilter()
         std::cout << "--------------------------------" << std::endl;
         std::cout << "1. Grayscale" << std::endl;
         std::cout << "2. Black and White" << std::endl;
-        std::cout << "3. Invert Image" << std::endl;
+        std::cout << "3. Invert colors" << std::endl;
         std::cout << "4. Merge Images" << std::endl;
         std::cout << "5. Flip Image" << std::endl;
         std::cout << "6. Crop Image" << std::endl;
         std::cout << "7. Resize Image" << std::endl;
         std::cout << "8. Brighten or Darken Image" << std::endl;
-        std::cout << "9. invert colors" << std::endl;
-        std::cout << "10. rotate image" << std::endl;
-        std::cout << "11. Return" << std::endl;
+        std::cout << "9. rotate image" << std::endl;
+        std::cout << "10. Return" << std::endl;
         std::cout << "enter choice:";
         std::getline(std::cin >> std::ws, choice);
         if(choice.length() > 2)
@@ -806,6 +813,7 @@ int main()
         // check what filters does the user want
         int choice{};
         choice = chooseFilter();
+        Image mergeTmp;
         switch (choice) {
             case 1:
                 grayScale(image);
@@ -815,7 +823,7 @@ int main()
                 blackAndWhite(image);
                 break;
             case 3:
-                invertImage();
+                invertcolor(image);
                 break;
             case 4:
                 mergeImages(image);
@@ -827,15 +835,12 @@ int main()
                 cropImage(image);
                 break;
             case 7:
-                resizeImage(image);
+                resizeImage(image,mergeTmp,0,0,"main");
                 break;
             case 8:
                 brightenOrDarken(image);
                 break;
             case 9:
-                invertcolor(image);
-                break;
-            case 10:
                 image_rotation(image);
                 break;
             default:

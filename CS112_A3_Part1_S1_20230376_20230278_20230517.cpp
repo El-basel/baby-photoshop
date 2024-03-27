@@ -9,6 +9,7 @@
  *
  * Mahmoud Mohamed El-Basel did: Black and White Filter
  * Youssef Walid did: color invertor
+ * Fares Mohammed did: Brighten and darken, grayscale, and merge filters
  * */
 
 #include <iostream>
@@ -124,8 +125,12 @@ void blackAndWhite(Image& image)
     }
     save(image);
 }
+
+
 void mergeCrop(Image& image, int& minWidth, int& minHeight){
     Image newImage(minWidth, minHeight);
+
+    //loop to crop final image to size
     for (int i = 0; i < minWidth; ++i){
 
         for (int j = 0; j < minHeight; ++j){
@@ -141,6 +146,7 @@ void mergeCrop(Image& image, int& minWidth, int& minHeight){
 void mergeImages(Image& image){
     Image image2;
 
+    //get second image from user
     while(true){
         std::string imageName{};
         std::cout << "Please enter the second image name:" << std::flush;
@@ -157,9 +163,12 @@ void mergeImages(Image& image){
         break;
     }
 
+    //find the minimum ammount of pixels on width and height
+    //so we can loop through the least ammount of pixles and crop later
     int width = std::min(image.width, image2.width);
     int height = std::min(image.height, image2.height);
 
+    //merge images
     int color, avg;
     for (int i = 0; i < width; ++i){
 

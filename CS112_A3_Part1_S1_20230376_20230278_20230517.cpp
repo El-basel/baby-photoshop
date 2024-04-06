@@ -206,6 +206,38 @@ void invertcolor(Image& image)
     save(image);
 }
 
+void brightenDarkenImage(Image& image, double multiplier){
+    int color;
+
+    //loop through each pixel and apply brightness multiplier
+
+    for (int i = 0; i < image.width; ++i){
+
+        for (int j = 0; j < image.height; ++j){
+            
+            for (int k = 0; k < 3; ++k){
+
+                color = image(i, j, k);
+                color *= multiplier;
+
+                //make sure color value dont exceed 255 and not go below 0
+                if (color >= 255){
+                    color = 255;
+                }
+
+                else if (color <= 0){
+                    color = 0;
+                }
+
+                else{
+                    image(i, j, k) = color;
+                }
+
+            }
+        }
+    }
+}
+
 std::string brightenDarkenChoice(){
     //take choice from user to brighten or darken
     //and return value based on choice
@@ -225,50 +257,51 @@ std::string brightenDarkenChoice(){
     }
 }
 
+double brightenDarkenPercent(std::string choice) {
+    //Ask user for percentage of brightening or darkening, and return the percentage
+    std::string percent;
+    while (true) {
+        std::cout << "How much do you want to " << choice << " your image by percent?" << std::endl;
+        std::cout << "Enter a number between 0 and 100: ";
+        std::cin >> percent;
+        
+        try {
+            int value = std::stoi(percent);
+            if (value >= 0 && value <= 100) {
+                return value;
+            }
+            else {
+                std::cout << "Please enter a valid number between 0 and 100." << std::endl;
+            }
+        }
+        catch (std::invalid_argument const&) {
+            std::cout << "Invalid input. Please enter a valid number." << std::endl;
+        }
+    }
+}
+
 void brightenOrDarken(Image& image)
 {
     std::string choice;
     int color;
+    double percent;
     double multiplierValue;
+
     //take choice from user to brighten or darken
     choice = brightenDarkenChoice();
 
-    //if choice is brighten, set multiplier to 1.5x (increase brightness by 50%)
+    //if choice is brighten ask for percentage of brightening and update multiplier
     if (choice == "1"){
-        multiplierValue = 1.5;
+        percent = brightenDarkenPercent("brighten");
+        multiplierValue = 1 + (percent / 100);
     }
-
-        //if choice is darken, set multiplier to 0.5x (decrease brightness by 50%)
+    //if choice is darken ask for percentage of darkening and update multiplier
     else{
-        multiplierValue = 0.5;
+        percent = brightenDarkenPercent("darken");
+        multiplierValue = percent / 100;
     }
 
-    //loop through each pixel and apply brightness multiplier
-    for (int i = 0; i < image.width; ++i){
-
-        for (int j = 0; j < image.height; ++j){
-
-            for (int k = 0; k < 3; ++k){
-
-                color = image(i, j, k);
-                color *= multiplierValue;
-
-                //make sure color value dont exceed 255 and not go below 0
-                if (color >= 255){
-                    color = 255;
-                }
-
-                else if (color <= 0){
-                    color = 0;
-                }
-
-                else{
-                    image(i, j, k) = color;
-                }
-
-            }
-        }
-    }
+    brightenDarkenImage(image, multiplierValue);
     save(image);
 }
 

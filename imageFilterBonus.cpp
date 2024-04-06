@@ -5,6 +5,7 @@
 #include <regex>
 #include <algorithm>
 #include <cstring>
+#include <cmath>
 #include "Image_Class.h"
 
 
@@ -699,6 +700,38 @@ void resizeImage(Image& image, double xResize = 0, double yResize = 0,std::strin
     }
 }
 
+void brightenDarkenImage(Image& image, double multiplier){
+    int color;
+
+    //loop through each pixel and apply brightness multiplier
+
+    for (int i = 0; i < image.width; ++i){
+
+        for (int j = 0; j < image.height; ++j){
+            
+            for (int k = 0; k < 3; ++k){
+
+                color = image(i, j, k);
+                color *= multiplier;
+
+                //make sure color value dont exceed 255 and not go below 0
+                if (color >= 255){
+                    color = 255;
+                }
+
+                else if (color <= 0){
+                    color = 0;
+                }
+
+                else{
+                    image(i, j, k) = color;
+                }
+
+            }
+        }
+    }
+}
+
 std::string brightenDarkenChoice(){
     //take choice from user to brighten or darken
     //and return value based on choice
@@ -718,51 +751,92 @@ std::string brightenDarkenChoice(){
     }
 }
 
+double brightenDarkenPercent(std::string choice) {
+    //Ask user for percentage of brightening or darkening, and return the percentage
+    std::string percent;
+    while (true) {
+        std::cout << "How much do you want to " << choice << " your image by percent?" << std::endl;
+        std::cout << "Enter a number between 0 and 100: ";
+        std::cin >> percent;
+        
+        try {
+            int value = std::stoi(percent);
+            if (value >= 0 && value <= 100) {
+                return value;
+            }
+            else {
+                std::cout << "Please enter a valid number between 0 and 100." << std::endl;
+            }
+        }
+        catch (std::invalid_argument const&) {
+            std::cout << "Invalid input. Please enter a valid number." << std::endl;
+        }
+    }
+}
+
 void brightenOrDarken(Image& image)
 {
     std::string choice;
     int color;
+    double percent;
     double multiplierValue;
+
     //take choice from user to brighten or darken
     choice = brightenDarkenChoice();
 
-    //if choice is brightened, set multiplier to 1.5x (increase brightness by 50%)
+    //if choice is brighten ask for percentage of brightening and update multiplier
     if (choice == "1"){
-        multiplierValue = 1.5;
+        percent = brightenDarkenPercent("brighten");
+        multiplierValue = 1 + (percent / 100);
     }
-
-        //if choice is darkened, set multiplier to 0.5x (decrease brightness by 50%)
+    //if choice is darken ask for percentage of darkening and update multiplier
     else{
-        multiplierValue = 0.5;
+        percent = brightenDarkenPercent("darken");
+        multiplierValue = percent / 100;
     }
 
-    //loop through each pixel and apply brightness multiplier
-    for (int i = 0; i < image.width; ++i){
+    brightenDarkenImage(image, multiplierValue);
+    save(image);
+}
 
-        for (int j = 0; j < image.height; ++j){
+void edgeDetect(Image& image){
+    //convert image to grayscale to improve edge detection
+    grayScale(image);
 
+    //create new image template to output final image
+    Image finalImage(image.width, image.height);
+
+    //set threshhold for gradient
+    int threshhold = 300;
+    
+    //loop through each pixel and calculate diffrence in gradient between it and surrounding pixels
+    for(int i = 1; i < image.width - 1; ++i){
+
+        for(int j = 1; j < image.height - 1; ++j){
+
+            //use Sobel operators to calculate horizontal (X) and vertical (Y) gradients
+            double gradX = (image(i - 1, j - 1, 0) * -1) + (image(i - 1, j, 0) * -2) + (image(i - 1, j + 1, 0) * -1)
+                           + (image(i + 1, j - 1, 0)) + (image(i + 1, j, 0) * 2) + (image(i + 1, j + 1, 0));
+
+            double gradY = (image(i - 1, j - 1, 0)) + (image(i, j - 1, 0) * 2) + (image(i + 1, j - 1, 0))
+                           + (image(i - 1, j + 1, 0) * -1) + (image(i, j + 1, 0) * -2) + (image(i + 1, j + 1, 0) * -1);
+                           
+            //Find final gradient
+            double grad = sqrt(pow(gradX, 2) + pow(gradY, 2));
+
+            //if gradient > threshhold edge color is set to black, else edge color is set to white
+            int edgeValue = grad > threshhold ? 0 : 255;
+
+            //loop through each pixel in Final image and stamp edge color to it
             for (int k = 0; k < 3; ++k){
 
-                color = image(i, j, k);
-                color *= multiplierValue;
-
-                //make sure color value don't exceed 255 and not go below 0
-                if (color >= 255){
-                    color = 255;
-                }
-
-                else if (color <= 0){
-                    color = 0;
-                }
-
-                else{
-                    image(i, j, k) = color;
-                }
+                finalImage(i, j, k) = edgeValue;
 
             }
         }
     }
-    save(image);
+
+    save(finalImage);
 }
 
 void naturalSunLight(Image& image)
@@ -810,8 +884,9 @@ int chooseFilter()
         std::cout << "8. Brighten or Darken Image" << std::endl;
         std::cout << "9. rotate image" << std::endl;
         std::cout << "10. Natural sun light" << std::endl;
-        std::cout << "11. Return" << std::endl;
-        std::cout << "12. Exit the program" << std::endl;
+        std::cout << "11. Edge detect" << std::endl;
+        std::cout << "12. Return" << std::endl;
+        std::cout << "13. Exit the program" << std::endl;
         std::cout << "enter choice:";
         std::getline(std::cin >> std::ws, choice);
         if(choice.length() > 2)
@@ -938,7 +1013,10 @@ int main()
                 naturalSunLight(image);
                 save(image);
                 break;
-            case 12:
+            case 11:
+                edgeDetect(image);
+                break;
+            case 13:
                 save(image);
                 std::cout << "------------" << std::endl;
                 std::cout << "| GOOD BYE |" << std::endl;

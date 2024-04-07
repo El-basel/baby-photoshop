@@ -231,58 +231,6 @@ void blackAndWhite(Image& image)
     }
 }
 
-void mergeCrop(Image& image, int& minWidth, int& minHeight){
-    Image newImage(minWidth, minHeight);
-    for (int i = 0; i < minWidth; ++i){
-
-        for (int j = 0; j < minHeight; ++j){
-
-            for (int k = 0; k < 3; ++k){
-                newImage(i, j, k) = image(i, j, k);
-            }
-        }
-    }
-    save(newImage);
-}
-
-void mergeImages(Image& image){
-    Image image2;
-
-    while(true){
-        std::string imageName{};
-        std::cout << "Please enter the second image name: " << std::flush;
-        std::getline(std::cin >> std::ws, imageName);
-        try {
-            image2.loadNewImage(imageName);
-        }
-        catch (std::invalid_argument& e) {
-            std::cerr << std::flush;
-            std::cout << e.what() << std::endl;
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            continue;
-        }
-        break;
-    }
-
-    int width = std::min(image.width, image2.width);
-    int height = std::min(image.height, image2.height);
-
-    int color, avg;
-    for (int i = 0; i < width; ++i){
-
-        for (int j = 0; j < height; ++j){
-
-            for (int k = 0; k < 3; ++k){
-
-                color = image(i, j, k) + image2(i, j, k);
-                avg = color / 2;
-                image(i, j, k) = avg;
-            }
-        }
-    }
-    mergeCrop(image, width, height);
-}
-
 void topBottomFlip(Image& flipped, Image& image)
 {
     // iterate through each pixel in the original and flipped image, both of them will be accessed using the same index for the width
@@ -641,6 +589,7 @@ int resizeOptions(double& xResize, double& yResize, Image& image)
     }
     return 0;
 }
+
 void resizeImage(Image& image, double xResize = 0, double yResize = 0,std::string calledBy = "other")
 {
     int option{1};
@@ -836,7 +785,118 @@ void edgeDetect(Image& image){
         }
     }
 
-    save(finalImage);
+    std::swap(image.imageData, finalImage.imageData);
+    std::swap(image.width, finalImage.width);
+    std::swap(image.height, finalImage.height);
+    save(image);
+}
+
+void mergeCrop(Image& image, int& width, int& height){
+    Image newImage(width, height);
+
+    //loop through the image pixels and take the desired width and height
+    //then set it to the new image's pixels
+    for (int i = 0; i < width; ++i){
+
+        for (int j = 0; j < height; ++j){
+
+            for (int k = 0; k < 3; ++k){
+                newImage(i, j, k) = image(i, j, k);
+            }
+        }
+    }
+    //swap datas of new image and image for saving image
+    std::swap(image.imageData, newImage.imageData);
+    std::swap(image.width, newImage.width);
+    std::swap(image.height, newImage.height);
+}
+
+void mergeNewImage(Image& image){
+    //take second image from user
+    while(true){
+        std::string imageName{};
+        std::cout << "Please enter the second image name: " << std::flush;
+        std::getline(std::cin >> std::ws, imageName);
+        try {
+            image.loadNewImage(imageName);
+        }
+        catch (std::invalid_argument& e) {
+            std::cerr << std::flush;
+            std::cout << e.what() << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            continue;
+        }
+        break;
+    }
+}
+
+void merge(Image& image1, Image& image2, int width, int height){
+    int color, avg;
+
+    //loop through each pixel's color on both images, calculate their avarage, and set
+    //color for image 1 as the avarage color to preform merge to that color
+    for (int i = 0; i < width; ++i){
+
+        for (int j = 0; j < height; ++j){
+
+            for (int k = 0; k < 3; ++k){
+
+                color = image1(i, j, k) + image2(i, j, k);
+                avg = color / 2;
+                image1(i, j, k) = avg;
+            }
+        }
+    }
+}
+
+std::string mergeChoice(){
+    std::string choice;
+
+    //ask user if how he wants to merge both images
+    while (true){
+        std::cout << "--------------------------------------------" << std::endl;
+        std::cout << "| How would you like to merge your images? |" << std::endl;
+        std::cout << "--------------------------------------------" << std::endl;
+        std::cout << "1. Resize dimentions of images and merge." << std::endl;
+        std::cout << "2. Merge shared portion of both images." << std::endl;
+        std::cout << "Enter your choice: ";
+        std::cin >> choice;
+
+        //return value based on user choice
+        if ("1" <= choice and choice <= "2" and choice.length() == 1){
+            return choice;
+        }
+        std::cout << "Please enter a valid choice." << std::endl;
+    }
+}
+
+void mergeImages(Image& image){
+    Image image2;
+    //get second image from user
+    mergeNewImage(image2);
+
+    //get choice from user
+    std::string choice = mergeChoice();
+
+    int minWidth = std::min(image.width, image2.width);
+    int minHeight = std::min(image.height, image2.height);
+
+    int maxWidth = std::max(image.width, image2.width);
+    int maxHeight = std::max(image.height, image2.height);
+
+    //if choice is 1, then resize both images to largest dimensions and preform merge
+    if (choice == "1"){
+        resizeImage(image, maxWidth, maxHeight);
+        resizeImage(image2, maxWidth, maxHeight);
+        merge(image, image2, maxWidth, maxHeight);
+    }
+    //if choice is 2, then crop both images to smallest dimensions and preform merge
+    else{
+        mergeCrop(image, minWidth, minHeight);
+        mergeCrop(image2, minWidth, minHeight);
+        merge(image, image2, minWidth, minHeight);
+    }
+    save(image);
 }
 
 void naturalSunLight(Image& image)

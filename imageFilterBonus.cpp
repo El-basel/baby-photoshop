@@ -945,7 +945,11 @@ int chooseFilter()
         }
         try {
             int filter = std::stoi(choice);
-            return filter;
+            if(filter >= 1 and filter <= 13)
+            {
+                return filter;
+            }
+            std::cout << "please enter a valid choice" << std::endl;
         }
         catch (std::invalid_argument&) {
             std::cout << "Please enter a valid choice" << std::endl;

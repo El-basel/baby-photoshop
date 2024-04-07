@@ -4,7 +4,6 @@
 #include <thread>
 #include <regex>
 #include <algorithm>
-#include <cstring>
 #include <cmath>
 #include "Image_Class.h"
 
@@ -87,6 +86,7 @@ void image_rotation(Image& image)
         std::cout << "----------------------------------------------------------------" << std::endl;
         std::cout << "|do you want to rotate the image by 90, 180 or 270 degrees? |" << std::endl;
         std::cout << "----------------------------------------------------------------" << std::endl;
+        std::cout << "Enter your choice :" << std::flush;
         std::cin >> choice;
         if (choice == "90" || choice == "180" || choice == "270")
         {
@@ -649,24 +649,18 @@ void resizeImage(Image& image, double xResize = 0, double yResize = 0,std::strin
         option = resizeOptions(xResize,yResize,image);
     }
     Image resizedImage(xResize,yResize);
-    if(option == 1 or option == 3)
-    {
-        xResize = std::ceil(double (xResize)/image.width * 100) / 100 ;
-        yResize = std::ceil(double (yResize)/image.height * 100) / 100;
-    }
-    else if(option == 2)
-    {
-        xResize = image.width - xResize;
-        xResize = std::ceil(double(xResize) / image.width * 100) / 100;
-        yResize = image.height - yResize;
-        yResize = std::ceil(double(yResize) / image.height * 100) / 100;
-    }
+
+    xResize = std::ceil(double (xResize)/image.width * 100) / 100 ;
+    yResize = std::ceil(double (yResize)/image.height * 100) / 100;
+
     int originalX{};
     int originalY{};
     for (int i = 0; i < resizedImage.width; ++i) {
         for (int j = 0; j < resizedImage.height; ++j) {
+
             originalX = std::floor(i / xResize);
             originalY = std::floor(j / yResize);
+
             if(originalX < 0)
             {
                 originalX = 0;
@@ -688,15 +682,12 @@ void resizeImage(Image& image, double xResize = 0, double yResize = 0,std::strin
             }
         }
     }
+    std::swap(image.imageData, resizedImage.imageData);
+    std::swap(image.width, resizedImage.width);
+    std::swap(image.height, resizedImage.height);
     if(calledBy == "main")
     {
-        save(resizedImage);
-    }
-    else
-    {
-        std::swap(image.imageData, resizedImage.imageData);
-        std::swap(image.width, resizedImage.width);
-        std::swap(image.height, resizedImage.height);
+        save(image);
     }
 }
 
@@ -835,8 +826,8 @@ void edgeDetect(Image& image){
             }
         }
     }
-
-    save(finalImage);
+    std::swap(image.imageData, finalImage.imageData);
+    save(image);
 }
 
 void naturalSunLight(Image& image)
@@ -892,10 +883,15 @@ int chooseFilter()
         if(choice.length() > 2)
         {
             std::cout << "Please enter a valid choice" << std::endl;
+            continue;
         }
         try {
             int filter = std::stoi(choice);
-            return filter;
+            if(filter >= 1 and filter <= 13)
+            {
+                return filter;
+            }
+            std::cout << "Please enter a valid choice" << std::endl;
         }
         catch (std::invalid_argument&) {
             std::cout << "Please enter a valid choice" << std::endl;

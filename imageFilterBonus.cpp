@@ -598,18 +598,11 @@ void resizeImage(Image& image, double xResize = 0, double yResize = 0,std::strin
         option = resizeOptions(xResize,yResize,image);
     }
     Image resizedImage(xResize,yResize);
-    if(option == 1 or option == 3)
-    {
-        xResize = std::ceil(double (xResize)/image.width * 100) / 100 ;
-        yResize = std::ceil(double (yResize)/image.height * 100) / 100;
-    }
-    else if(option == 2)
-    {
-        xResize = image.width - xResize;
-        xResize = std::ceil(double(xResize) / image.width * 100) / 100;
-        yResize = image.height - yResize;
-        yResize = std::ceil(double(yResize) / image.height * 100) / 100;
-    }
+
+    xResize = std::ceil(double (xResize)/image.width * 100) / 100 ;
+    yResize = std::ceil(double (yResize)/image.height * 100) / 100;
+
+
     int originalX{};
     int originalY{};
     for (int i = 0; i < resizedImage.width; ++i) {
@@ -637,15 +630,12 @@ void resizeImage(Image& image, double xResize = 0, double yResize = 0,std::strin
             }
         }
     }
+    std::swap(image.imageData, resizedImage.imageData);
+    std::swap(image.width, resizedImage.width);
+    std::swap(image.height, resizedImage.height);
     if(calledBy == "main")
     {
-        save(resizedImage);
-    }
-    else
-    {
-        std::swap(image.imageData, resizedImage.imageData);
-        std::swap(image.width, resizedImage.width);
-        std::swap(image.height, resizedImage.height);
+        save(image);
     }
 }
 

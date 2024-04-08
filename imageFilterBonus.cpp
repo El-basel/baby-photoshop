@@ -78,6 +78,133 @@ void save(Image& image)
         }
     } while (saveOption != "save" or saveOption != "discard");
 }
+void frame(Image& image)
+{
+    int choice,n = 1,limit = 95;
+    std::cout << "1.green\n" << "2.red\n" << "3.blue\n" << "4.black\n" << "5.white\n";
+    std::cin >> choice;
+    for (int i = 0; i < image.width; i++)
+    {
+    //    int n = 0;
+        for (int j = 0; j < image.height; j++)
+        {
+            if (choice == 1)
+            {
+                if (i < 15 || i >= image.width - 15)
+                {
+                    image(i, j, 0) = 0;
+                    image(i, j, 1) = 255;
+                    image(i, j, 2) = 0;
+                }
+                else if (j < 15 || image.height - j < 15)
+                {
+                    image(i, j, 0) = 0;
+                    image(i, j, 1) = 255;
+                    image(i, j, 2) = 0;
+                }
+
+            }
+            else if (choice == 2)
+            {
+                if (i < 15 || i >= image.width - 15)
+                {
+                    image(i, j, 0) = 255;
+                    image(i, j, 1) = 0;
+                    image(i, j, 2) = 0;
+                }
+                else if (j < 15 || image.height - j < 15)
+                {
+                    image(i, j, 0) = 255;
+                    image(i, j, 1) = 0;
+                    image(i, j, 2) = 0;
+                }
+
+            }
+            else if (choice == 3)
+            {
+                if (i < 15 || i >= image.width - 15)
+                {
+                    image(i, j, 0) = 0;
+                    image(i, j, 1) = 0;
+                    image(i, j, 2) = 255;
+                }
+                else if (j < 15 || image.height - j < 15)
+                {
+                    image(i, j, 0) = 0;
+                    image(i, j, 1) = 0;
+                    image(i, j, 2) = 255;
+                }
+
+            }
+            else if (choice == 5)
+            {
+                if (i < 15 || i >= image.width - 15)
+                {
+                    image(i, j, 0) = 255;
+                    image(i, j, 1) = 255;
+                    image(i, j, 2) = 255;
+                }
+                else if (j < 15 || image.height - j < 15)
+                {
+                    image(i, j, 0) = 255;
+                    image(i, j, 1) = 255;
+                    image(i, j, 2) = 255;
+                }
+
+            }
+            else if (choice == 4)
+            {
+                if (i < 15 || i >= image.width - 15)
+                {
+                    image(i, j, 0) = 0;
+                    image(i, j, 1) = 0;
+                    image(i, j, 2) = 0;
+                }
+                else if (j < 15 || image.height - j < 15)
+                {
+                    image(i, j, 0) = 0;
+                    image(i, j, 1) = 0;
+                    image(i, j, 2) = 0;
+                }
+
+            }
+            else if (choice == 6)
+            {
+                if (i < 35 || i >= image.width - 35)
+                {
+                    image(i, j, 0) = 0;
+                    image(i, j, 1) = 0;
+                    image(i, j, 2) = 255;
+                }
+                else if (j < 35 || image.height - j < 35)
+                {
+                    image(i, j, 0) = 0;
+                    image(i, j, 1) = 0;
+                    image(i, j, 2) = 255;
+                }
+                else if (i < 45 || i >= image.width - 45)
+                {
+                    image(i, j, 0) = 0;
+                    image(i, j, 1) = 0;
+                    image(i, j, 2) = 0;
+                    n = 0;
+                }
+                else if (j < limit || image.height - j < limit )
+                {
+                    image(i, j, 0) = 0;
+                    image(i, j, 1) = 0;
+                    image(i, j, 2) = 0;
+                    image((image.width - 1) - i, j, 0) = 0;
+                    image((image.width - 1) - i, j, 1) = 0;
+                    image((image.width - 1) - i, j, 2) = 0;
+                }
+            }
+        }
+        if (limit > 45 && n == 0) --limit;
+    }
+    save(image);
+}
+
 void image_rotation(Image& image)
 {
     Image finalimage;
@@ -153,7 +280,6 @@ void image_rotation(Image& image)
         std::swap(image.height, newimage.height);
         save(image);
     }
-
 }
 
 void invertcolor(Image& image)
@@ -885,8 +1011,9 @@ int chooseFilter()
         std::cout << "9. rotate image" << std::endl;
         std::cout << "10. Natural sun light" << std::endl;
         std::cout << "11. Edge detect" << std::endl;
-        std::cout << "12. Return" << std::endl;
-        std::cout << "13. Exit the program" << std::endl;
+        std::cout << "12. frames" << std::endl;
+        std::cout << "13. Return" << std::endl;
+        std::cout << "14. Exit the program" << std::endl;
         std::cout << "enter choice:";
         std::getline(std::cin >> std::ws, choice);
         if(choice.length() > 2)
@@ -939,38 +1066,38 @@ int main()
     //- load the image in "image"
     //- define "imageStatus" and use it to know if the operation of loading the image succeeded, failed, or the user wants to exit
     // imageStatus == 0 means exit the program, == 1 means image loaded, == -1 means error in loading
-    int imageStatus{1};
+    int imageStatus{ 1 };
     Image image;
     // first loop to load a new image
     while (true)
     {
         imageStatus = getImage(image);
-        if(imageStatus == 0)
+        if (imageStatus == 0)
         {
             return 0;
         }
-        else if(imageStatus == 1)
+        else if (imageStatus == 1)
         {
             break;
         }
     }
-    bool loadNewImage{false};
+    bool loadNewImage{ false };
     // second loop to do filters on the loaded image
     // and save or discard this image and load a new one
     // depends on the user choice
     while (true)
     {
-        if(loadNewImage)
+        if (loadNewImage)
         {
             save(image);
             while (true)
             {
                 imageStatus = getImage(image);
-                if(imageStatus == 0)
+                if (imageStatus == 0)
                 {
                     return 0;
                 }
-                else if(imageStatus == 1)
+                else if (imageStatus == 1)
                 {
                     break;
                 }
@@ -980,51 +1107,54 @@ int main()
         int choice{};
         choice = chooseFilter();
         switch (choice) {
-            case 1:
-                grayScale(image);
-                save(image);
-                break;
-            case 2:
-                blackAndWhite(image);
-                save(image);
-                break;
-            case 3:
-                invertcolor(image);
-                break;
-            case 4:
-                mergeImages(image);
-                break;
-            case 5:
-                flipImage(image);
-                break;
-            case 6:
-                cropImage(image);
-                break;
-            case 7:
-                resizeImage(image,0,0,"main");
-                break;
-            case 8:
-                brightenOrDarken(image);
-                break;
-            case 9:
-                image_rotation(image);
-                break;
-            case 10:
-                naturalSunLight(image);
-                save(image);
-                break;
-            case 11:
-                edgeDetect(image);
-                break;
-            case 13:
-                save(image);
-                std::cout << "------------" << std::endl;
-                std::cout << "| GOOD BYE |" << std::endl;
-                std::cout << "------------" << std::endl;
-                return 0;
-            default:
-                std::cout << "You did not choose a filter" << std::endl;
-                save(image);
+        case 1:
+            grayScale(image);
+            save(image);
+            break;
+        case 2:
+            blackAndWhite(image);
+            save(image);
+            break;
+        case 3:
+            invertcolor(image);
+            break;
+        case 4:
+            mergeImages(image);
+            break;
+        case 5:
+            flipImage(image);
+            break;
+        case 6:
+            cropImage(image);
+            break;
+        case 7:
+            resizeImage(image, 0, 0, "main");
+            break;
+        case 8:
+            brightenOrDarken(image);
+            break;
+        case 9:
+            image_rotation(image);
+            break;
+        case 10:
+            naturalSunLight(image);
+            save(image);
+            break;
+        case 11:
+            edgeDetect(image);
+            break;
+        case 12:
+            frame(image);
+            break;
+        case 14:
+            save(image);
+            std::cout << "------------" << std::endl;
+            std::cout << "| GOOD BYE |" << std::endl;
+            std::cout << "------------" << std::endl;
+            return 0;
+        default:
+            std::cout << "You did not choose a filter" << std::endl;
+            save(image);
         }
         loadNewImage = wantToLoadNew();
     }

@@ -80,124 +80,273 @@ void save(Image& image)
 }
 void frame(Image& image)
 {
-    int choice,n = 1,limit = 95;
-    std::cout << "1.green\n" << "2.red\n" << "3.blue\n" << "4.black\n" << "5.white\n";
-    std::cin >> choice;
+    std::string choice1, choice2, choice3;
+    int n = 1, limit = 95;
+    bool key1 = 1, key2 = 1;
+    while (key1 || key2)
+    {
+        std::cout << "-----------------------------------" << std::endl;
+        std::cout << "| what type of frame do you want? |" << std::endl;
+        std::cout << "| 1.simple                2.fancy |" << std::endl;
+        std::cout << "-----------------------------------" << std::endl;
+        std::cout << "enter the number of your choice: ";
+        std::cin >> choice1;
+        if (choice1 == "1" || choice1 == "2")
+        {
+            std::cout << "---------------------------------" << std::endl;
+            std::cout << "| what frame color do you want? |" << std::endl;
+            std::cout << "| 1.red                 2.white |" << std::endl;
+            std::cout << "| 3.green               4.black |" << std::endl;
+            std::cout << "| 5.blue                        |" << std::endl;
+            std::cout << "---------------------------------" << std::endl;
+            std::cout<<"enter the number of your choice: ";
+            std::cin >> choice2;
+            while (true)
+            {
+                if (choice2 == "1" || choice2 == "2" || choice2 == "3" || choice2 == "4" || choice2 == "5")
+                {
+                    if (choice1 == "1")
+                    {
+                        key1 = key2 = 0;
+                        break;
+                    }
+                    else
+                    {
+                        key1 = 0;
+                        break;
+                    }
+                }
+                else
+                {
+                    std::cout << "invalid input\nenter a valid choice: ";
+                    std::cin >> choice2;
+                }
+            }
+        }
+        else
+        {
+            std::cout << "invalid input\n";
+            continue;
+        }
+        if (choice1 == "2")
+        {
+            std::cout << "----------------------------------------------" << std::endl;
+            std::cout << "| what color do you want the border line ?   |" << std::endl;
+            std::cout << "| 1.red                 2.white              |" << std::endl;
+            std::cout << "| 3.green               4.black              |" << std::endl;
+            std::cout << "| 5.blue                                     |" << std::endl;
+            std::cout << "----------------------------------------------" << std::endl;
+            std::cout << "enter the number of your choice: ";
+            std::cin >> choice3;
+            while (true)
+            {
+                if (choice3 == "1" || choice3 == "2" || choice3 == "3" || choice3 == "4" || choice3 == "5")
+                {
+                    key2 = 0;
+                    break;
+                }
+                else
+                {
+                    std::cout << "invalid input\nenter a valid choice: ";
+                    std::cin >> choice3;
+                }
+            }
+        }
+
+    }   
+    
     for (int i = 0; i < image.width; i++)
     {
     //    int n = 0;
         for (int j = 0; j < image.height; j++)
         {
-            if (choice == 1)
+            if (choice2 == "3")
             {
-                if (i < 15 || i >= image.width - 15)
+                if (i < 35 || i >= image.width - 35)
                 {
                     image(i, j, 0) = 0;
                     image(i, j, 1) = 255;
                     image(i, j, 2) = 0;
+                    continue;
                 }
-                else if (j < 15 || image.height - j < 15)
+                else if (j < 35 || image.height - j < 35)
                 {
                     image(i, j, 0) = 0;
                     image(i, j, 1) = 255;
                     image(i, j, 2) = 0;
+                    continue;
                 }
 
             }
-            else if (choice == 2)
+            else if (choice2 == "1")
             {
-                if (i < 15 || i >= image.width - 15)
+                if (i < 35 || i >= image.width - 35)
                 {
                     image(i, j, 0) = 255;
                     image(i, j, 1) = 0;
                     image(i, j, 2) = 0;
+                    continue;
                 }
-                else if (j < 15 || image.height - j < 15)
+                else if (j < 35 || image.height - j < 35)
                 {
                     image(i, j, 0) = 255;
                     image(i, j, 1) = 0;
                     image(i, j, 2) = 0;
+                    continue;
                 }
-
             }
-            else if (choice == 3)
-            {
-                if (i < 15 || i >= image.width - 15)
-                {
-                    image(i, j, 0) = 0;
-                    image(i, j, 1) = 0;
-                    image(i, j, 2) = 255;
-                }
-                else if (j < 15 || image.height - j < 15)
-                {
-                    image(i, j, 0) = 0;
-                    image(i, j, 1) = 0;
-                    image(i, j, 2) = 255;
-                }
-
-            }
-            else if (choice == 5)
-            {
-                if (i < 15 || i >= image.width - 15)
-                {
-                    image(i, j, 0) = 255;
-                    image(i, j, 1) = 255;
-                    image(i, j, 2) = 255;
-                }
-                else if (j < 15 || image.height - j < 15)
-                {
-                    image(i, j, 0) = 255;
-                    image(i, j, 1) = 255;
-                    image(i, j, 2) = 255;
-                }
-
-            }
-            else if (choice == 4)
-            {
-                if (i < 15 || i >= image.width - 15)
-                {
-                    image(i, j, 0) = 0;
-                    image(i, j, 1) = 0;
-                    image(i, j, 2) = 0;
-                }
-                else if (j < 15 || image.height - j < 15)
-                {
-                    image(i, j, 0) = 0;
-                    image(i, j, 1) = 0;
-                    image(i, j, 2) = 0;
-                }
-
-            }
-            else if (choice == 6)
+            else if (choice2 == "5")
             {
                 if (i < 35 || i >= image.width - 35)
                 {
                     image(i, j, 0) = 0;
                     image(i, j, 1) = 0;
                     image(i, j, 2) = 255;
+                    continue;
                 }
                 else if (j < 35 || image.height - j < 35)
                 {
                     image(i, j, 0) = 0;
                     image(i, j, 1) = 0;
                     image(i, j, 2) = 255;
+                    continue;
                 }
-                else if (i < 45 || i >= image.width - 45)
+
+            }
+            else if (choice2 == "2")
+            {
+                if (i < 35 || i >= image.width - 35)
+                {
+                    image(i, j, 0) = 255;
+                    image(i, j, 1) = 255;
+                    image(i, j, 2) = 255;
+                    continue;
+                }
+                else if (j < 35 || image.height - j < 35)
+                {
+                    image(i, j, 0) = 255;
+                    image(i, j, 1) = 255;
+                    image(i, j, 2) = 255;
+                    continue;
+                }
+
+            }
+            else if (choice2 == "4")
+            {
+                if (i < 35 || i >= image.width - 35)
                 {
                     image(i, j, 0) = 0;
                     image(i, j, 1) = 0;
                     image(i, j, 2) = 0;
-                    n = 0;
+                    continue;
                 }
-                else if (j < limit || image.height - j < limit )
+                else if (j < 35 || image.height - j < 35)
                 {
                     image(i, j, 0) = 0;
                     image(i, j, 1) = 0;
                     image(i, j, 2) = 0;
-                    image((image.width - 1) - i, j, 0) = 0;
-                    image((image.width - 1) - i, j, 1) = 0;
-                    image((image.width - 1) - i, j, 2) = 0;
+                    continue;
                 }
+
+            }
+            if (choice1 == "2")
+            {
+                if (choice3 == "1")
+                {
+                    if (i < 45 || i >= image.width - 45)
+                    {
+                        image(i, j, 0) = 255;
+                        image(i, j, 1) = 0;
+                        image(i, j, 2) = 0;
+                        n = 0;
+                    }
+                    else if (j < limit || image.height - j < limit)
+                    {
+                        image(i, j, 0) = 255;
+                        image(i, j, 1) = 0;
+                        image(i, j, 2) = 0;
+                        image((image.width - 1) - i, j, 0) = 255;
+                        image((image.width - 1) - i, j, 1) = 0;
+                        image((image.width - 1) - i, j, 2) = 0;
+                    }
+                }
+                else if (choice3 == "2")
+                {
+                    if ( i < 45 || i >= image.width - 45)
+                    {
+                        image(i, j, 0) = 255;
+                        image(i, j, 1) = 255;
+                        image(i, j, 2) = 255;
+                        n = 0;
+                    }
+                    else if (j < limit || image.height - j < limit)
+                    {
+                        image(i, j, 0) = 255;
+                        image(i, j, 1) = 255;
+                        image(i, j, 2) = 255;
+                        image((image.width - 1) - i, j, 0) = 255;
+                        image((image.width - 1) - i, j, 1) = 255;
+                        image((image.width - 1) - i, j, 2) = 255;
+                    }
+                }
+                else if (choice3 == "3")
+                {
+                    if (i < 45 || i >= image.width - 45)
+                    {
+                        image(i, j, 0) = 0;
+                        image(i, j, 1) = 255;
+                        image(i, j, 2) = 0;
+                        n = 0;
+                    }
+                    else if (j < limit || image.height - j < limit)
+                    {
+                        image(i, j, 0) = 0;
+                        image(i, j, 1) = 255;
+                        image(i, j, 2) = 0;
+                        image((image.width - 1) - i, j, 0) = 0;
+                        image((image.width - 1) - i, j, 1) = 255;
+                        image((image.width - 1) - i, j, 2) = 0;
+                    }
+                }
+                else if (choice3 == "4")
+                {
+                    if (i < 45 || i >= image.width - 45)
+                    {
+                        image(i, j, 0) = 0;
+                        image(i, j, 1) = 0;
+                        image(i, j, 2) = 0;
+                        n = 0;
+                    }
+                    else if (j < limit || image.height - j < limit)
+                    {
+                        image(i, j, 0) = 0;
+                        image(i, j, 1) = 0;
+                        image(i, j, 2) = 0;
+                        image((image.width - 1) - i, j, 0) = 0;
+                        image((image.width - 1) - i, j, 1) = 0;
+                        image((image.width - 1) - i, j, 2) = 0;
+                    }
+                }
+                else if (choice3 == "5")
+                {
+                    if (i < 45 || i >= image.width - 45)
+                    {
+                        image(i, j, 0) = 0;
+                        image(i, j, 1) = 0;
+                        image(i, j, 2) = 255;
+                        n = 0;
+                    }
+                    else if (j < limit || image.height - j < limit)
+                    {
+                        image(i, j, 0) = 0;
+                        image(i, j, 1) = 0;
+                        image(i, j, 2) = 255;
+                        image((image.width - 1) - i, j, 0) = 0;
+                        image((image.width - 1) - i, j, 1) = 0;
+                        image((image.width - 1) - i, j, 2) = 255;
+                    }
+                }
+                
             }
         }
         if (limit > 45 && n == 0) --limit;

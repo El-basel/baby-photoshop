@@ -1041,6 +1041,30 @@ void naturalSunLight(Image& image)
 
 }
 
+void purple(Image& image){
+    int temp;
+
+    for (int i = 0; i < image.width; ++i){
+
+        for (int j = 0; j < image.height; ++j){
+
+                for(int k = 0; k < 3; ++k){
+                    if(k == 0 || k == 2){
+                        temp = image(i, j, k) + 50;
+                        
+                        if(temp > 255){
+                            image(i, j, k) = 255;
+                        }
+                        else{
+                            image(i, j, k) = temp;
+                        }
+                    }
+                }
+            }
+        }
+    save(image);
+}
+
 int chooseFilter()
 {
     // get the user choice for filters
@@ -1061,9 +1085,10 @@ int chooseFilter()
         std::cout << "9. rotate image" << std::endl;
         std::cout << "10. Natural sun light" << std::endl;
         std::cout << "11. Edge detect" << std::endl;
-        std::cout << "12. frames" << std::endl;
-        std::cout << "13. Return" << std::endl;
-        std::cout << "14. Exit the program" << std::endl;
+        std::cout << "12. Frames" << std::endl;
+        std::cout << "13. Purple" << std::endl;
+        std::cout << "14. Return" << std::endl;
+        std::cout << "15. Exit the program" << std::endl;
         std::cout << "enter choice:";
         std::getline(std::cin >> std::ws, choice);
         if(choice.length() > 2)
@@ -1200,7 +1225,9 @@ int main()
         case 12:
             frame(image);
             break;
-        case 14:
+        case 13:
+            purple(image);
+        case 15:
             save(image);
             std::cout << "------------" << std::endl;
             std::cout << "| GOOD BYE |" << std::endl;

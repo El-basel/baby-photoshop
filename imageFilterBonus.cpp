@@ -78,6 +78,32 @@ void save(Image& image)
         }
     } while (saveOption != "save" or saveOption != "discard");
 }
+void blur(Image& image)
+{
+    Image newimage(image.width, image.height);
+    int redsum, greensum, bluesum;
+    int redavg, greenavg, blueavg;
+    for (int i = 1; i < image.width - 1; i++)
+    {
+        for (int j = 1; j < image.height - 1; j++)
+        {
+             redsum = (image(i,j,0) + image(i - 1, j - 1, 0) + image(i, j - 1, 0) + image(i + 1, j - 1, 0) + image(i - 1, j, 0)
+                 + image(i + 1, j, 0) + image(i - 1, j + 1, 0) + image(i + 1, j + 1, 0) + image(i, j - 1, 0));
+             greensum = (image(i, j, 1) + image(i - 1, j - 1, 1) + image(i, j - 1, 1) + image(i + 1, j - 1, 1) + image(i - 1, j, 1) 
+                 + image(i + 1, j, 1) + image(i - 1, j + 1, 1) + image(i + 1, j + 1, 1) + image(i, j - 1, 1));
+             bluesum = (image(i, j, 2)* + image(i - 1, j - 1, 2) + image(i, j - 1, 2) + image(i + 1, j - 1, 2) + image(i - 1, j, 2)
+                 + image(i + 1, j, 2) + image(i - 1, j + 1, 2) + image(i + 1, j + 1, 2) + image(i, j - 1, 2));
+             redavg = redsum / 9;
+             greenavg = greensum / 9;
+             blueavg = bluesum / 9;
+             newimage(i, j, 0) = redavg;
+             newimage(i, j, 1) = greenavg;
+             newimage(i, j, 2) = blueavg;
+
+        }
+    }
+    save(newimage);
+}
 void frame(Image& image)
 {
     std::string choice1, choice2, choice3;
@@ -1236,8 +1262,9 @@ int chooseFilter()
         std::cout << "11. Edge detect" << std::endl;
         std::cout << "12. Frames" << std::endl;
         std::cout << "13. Purple" << std::endl;
-        std::cout << "14. Return" << std::endl;
-        std::cout << "15. Exit the program" << std::endl;
+        std::cout << "14. blur" << std::endl;
+        std::cout << "15. Return" << std::endl;
+        std::cout << "16. Exit the program" << std::endl;
         std::cout << "enter choice:";
         std::getline(std::cin >> std::ws, choice);
         if(choice.length() > 2)
@@ -1246,7 +1273,7 @@ int chooseFilter()
         }
         try {
             int filter = std::stoi(choice);
-            if(filter >= 1 and filter <= 13)
+            if(filter >= 1 and filter <= 14)
             {
                 return filter;
             }
@@ -1376,7 +1403,10 @@ int main()
             break;
         case 13:
             purple(image);
-        case 15:
+        case 14:
+            blur(image);
+            break;
+        case 16:
             save(image);
             std::cout << "------------" << std::endl;
             std::cout << "| GOOD BYE |" << std::endl;

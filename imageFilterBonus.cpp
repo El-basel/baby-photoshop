@@ -78,36 +78,81 @@ void save(Image& image)
         }
     } while (saveOption != "save" or saveOption != "discard");
 }
+void infrared(Image& image)
+{
+    int avg;
+    for (int i = 0; i < image.width; i++)
+    {
+        for (int j = 0; j < image.height; j++)
+        {
+            int colorssum = 0;
+            colorssum += image(i, j, 0);
+            colorssum += image(i, j, 1);
+            colorssum += image(i, j, 2);
+            avg = colorssum / 3;
+            image(i, j, 0) = 255 - avg;
+            image(i, j, 1) = 255 - avg;
+            image(i, j, 2) = 255 - avg;
+            image(i, j, 0) += avg;
+        }
+    }
+    save(image);
+}
+int sumcalc(Image& image,int x, int y,int limit,int k)
+{
+    int sum = 0;
+    //std::cout << x <<',' << y << '\n';
+    for (int i = x; i < x + limit; i++)
+    {
+        for (int j = y; j < y + limit; j++)
+        {
+            sum += image(i, j, k);
+        }
+    }
+    return sum;
+}
 void blur(Image& image)
 {
     Image newimage(image.width, image.height);
-    int redsum, greensum, bluesum;
+    bool key1 = 0, key2 = 1;
+    std::cout << "level of blur: ";
+    int n;
+    std::cin >> n;
+    int redsum, greensum, bluesum, limitw = 1, limith = 1, pixelw, pixelh,itrations = 0;
+    redsum = greensum = bluesum = 0;
+    int limit = (2 * n) + 1;
+    std::cout << limit;
+    int avg = pow((2 * n) + 1,2);
     int redavg, greenavg, blueavg;
-    for (int i = 1; i < image.width - 1; i++)
+    for (int i = n; i < image.width-n; i++)
     {
-        for (int j = 1; j < image.height - 1; j++)
+        
+        for (int j =n; j < image.height-n; j++)
         {
-             redsum = (image(i,j,0) + image(i - 1, j - 1, 0) + image(i, j - 1, 0) + image(i + 1, j - 1, 0) + image(i - 1, j, 0)
-                 + image(i + 1, j, 0) + image(i - 1, j + 1, 0) + image(i + 1, j + 1, 0) + image(i, j - 1, 0));
-             greensum = (image(i, j, 1) + image(i - 1, j - 1, 1) + image(i, j - 1, 1) + image(i + 1, j - 1, 1) + image(i - 1, j, 1) 
-                 + image(i + 1, j, 1) + image(i - 1, j + 1, 1) + image(i + 1, j + 1, 1) + image(i, j - 1, 1));
-             bluesum = (image(i, j, 2)* + image(i - 1, j - 1, 2) + image(i, j - 1, 2) + image(i + 1, j - 1, 2) + image(i - 1, j, 2)
-                 + image(i + 1, j, 2) + image(i - 1, j + 1, 2) + image(i + 1, j + 1, 2) + image(i, j - 1, 2));
-             redavg = redsum / 9;
-             greenavg = greensum / 9;
-             blueavg = bluesum / 9;
-             newimage(i, j, 0) = redavg;
-             newimage(i, j, 1) = greenavg;
-             newimage(i, j, 2) = blueavg;
-
+            //std::cout << i << ',' << j << '\n';
+            redsum = sumcalc(image, i - n, j - n, limit, 0);
+            //std::cout << redsum<<'\n';
+            greensum = sumcalc(image, i - n, j - n, limit, 1);
+            bluesum = sumcalc(image, i - n, j - n, limit, 2);
+            redavg = redsum / avg;
+            greenavg = greensum / avg;
+            blueavg = bluesum / avg;
+            newimage(i, j, 0) = redavg;
+            newimage(i, j, 1) = greenavg;
+            newimage(i, j, 2) = blueavg;
+            
         }
     }
-    save(newimage);
+    std::swap(image.imageData, newimage.imageData);
+    std::swap(image.width, newimage.width);
+    std::swap(image.height, newimage.height);
+    save(image);
 }
 void frame(Image& image)
 {
     std::string choice1, choice2, choice3;
-    int n = 1, limit = 95;
+    int n = 1, limit = image.width * 0.13, nR, nB, nG, nR2, nG2, nB2;
+    nR = nB = nG = nR2 = nG2 = nB2 = 0;
     bool key1 = 1, key2 = 1;
     while (key1 || key2)
     {
@@ -179,203 +224,118 @@ void frame(Image& image)
             }
         }
 
-    }   
-    
+    }
+    int intchoice2 = stoi(choice2);
+    int intchoice3 = stoi(choice3);
+    switch (intchoice2)
+    {
+    case 1:
+        nR = 255;
+        nB = 0;
+        nG = 0;
+        break;
+    case 2:
+        nR = 255;
+        nB = 255;
+        nG = 255;
+        break;
+    case 3:
+        nR = 0;
+        nB = 0;
+        nG = 255;
+        break;
+    case 4:
+        nR = 0;
+        nB = 0;
+        nG = 0;
+        break;
+    case 5:
+        nR = 0;
+        nB = 255;
+        nG = 0;
+        break;
+    default:
+        break;
+    }
+    if (choice1 == "2")
+    {
+        switch (intchoice3)
+        {
+        case 1:
+            nR2 = 255;
+            nB2 = 0;
+            nG2 = 0;
+            break;
+        case 2:
+            nR2 = 255;
+            nB2 = 255;
+            nG2 = 255;
+            break;
+        case 3:
+            nR2 = 0;
+            nB2 = 0;
+            nG2 = 255;
+            break;
+        case 4:
+            nR2 = 0;
+            nB2 = 0;
+            nG2 = 0;
+            break;
+        case 5:
+            nR2 = 0;
+            nB2 = 255;
+            nG2 = 0;
+            break;
+        default:
+            break;
+        }
+    }
+    std::cout << nR << '\t' << nG << '\t' << nB <<'\n';
+    std::cout << nR2 << '\t' << nG2 << '\t' << nB2 <<'\n';
+    int framewidth = image.width * 0.04;
+    int borderwidth = image.width * 0.06;
     for (int i = 0; i < image.width; i++)
     {
     //    int n = 0;
         for (int j = 0; j < image.height; j++)
         {
-            if (choice2 == "3")
-            {
-                if (i < 35 || i >= image.width - 35)
-                {
-                    image(i, j, 0) = 0;
-                    image(i, j, 1) = 255;
-                    image(i, j, 2) = 0;
-                    continue;
-                }
-                else if (j < 35 || image.height - j < 35)
-                {
-                    image(i, j, 0) = 0;
-                    image(i, j, 1) = 255;
-                    image(i, j, 2) = 0;
-                    continue;
-                }
 
-            }
-            else if (choice2 == "1")
+            if (i < framewidth || i >= image.width - framewidth)
             {
-                if (i < 35 || i >= image.width - 35)
-                {
-                    image(i, j, 0) = 255;
-                    image(i, j, 1) = 0;
-                    image(i, j, 2) = 0;
-                    continue;
-                }
-                else if (j < 35 || image.height - j < 35)
-                {
-                    image(i, j, 0) = 255;
-                    image(i, j, 1) = 0;
-                    image(i, j, 2) = 0;
-                    continue;
-                }
+                image(i, j, 0) = nR;
+                image(i, j, 1) = nG;
+                image(i, j, 2) = nB;
+                continue;
             }
-            else if (choice2 == "5")
+            else if (j < framewidth || image.height - j < framewidth)
             {
-                if (i < 35 || i >= image.width - 35)
-                {
-                    image(i, j, 0) = 0;
-                    image(i, j, 1) = 0;
-                    image(i, j, 2) = 255;
-                    continue;
-                }
-                else if (j < 35 || image.height - j < 35)
-                {
-                    image(i, j, 0) = 0;
-                    image(i, j, 1) = 0;
-                    image(i, j, 2) = 255;
-                    continue;
-                }
-
-            }
-            else if (choice2 == "2")
-            {
-                if (i < 35 || i >= image.width - 35)
-                {
-                    image(i, j, 0) = 255;
-                    image(i, j, 1) = 255;
-                    image(i, j, 2) = 255;
-                    continue;
-                }
-                else if (j < 35 || image.height - j < 35)
-                {
-                    image(i, j, 0) = 255;
-                    image(i, j, 1) = 255;
-                    image(i, j, 2) = 255;
-                    continue;
-                }
-
-            }
-            else if (choice2 == "4")
-            {
-                if (i < 35 || i >= image.width - 35)
-                {
-                    image(i, j, 0) = 0;
-                    image(i, j, 1) = 0;
-                    image(i, j, 2) = 0;
-                    continue;
-                }
-                else if (j < 35 || image.height - j < 35)
-                {
-                    image(i, j, 0) = 0;
-                    image(i, j, 1) = 0;
-                    image(i, j, 2) = 0;
-                    continue;
-                }
-
+                image(i, j, 0) = nR;
+                image(i, j, 1) = nG;
+                image(i, j, 2) = nB;
+                continue;
             }
             if (choice1 == "2")
             {
-                if (choice3 == "1")
+                if (i < borderwidth || i >= image.width - borderwidth)
                 {
-                    if (i < 45 || i >= image.width - 45)
-                    {
-                        image(i, j, 0) = 255;
-                        image(i, j, 1) = 0;
-                        image(i, j, 2) = 0;
-                        n = 0;
-                    }
-                    else if (j < limit || image.height - j < limit)
-                    {
-                        image(i, j, 0) = 255;
-                        image(i, j, 1) = 0;
-                        image(i, j, 2) = 0;
-                        image((image.width - 1) - i, j, 0) = 255;
-                        image((image.width - 1) - i, j, 1) = 0;
-                        image((image.width - 1) - i, j, 2) = 0;
-                    }
+                    image(i, j, 0) = nR2;
+                    image(i, j, 1) = nG2;
+                    image(i, j, 2) = nB2;
+                    n = 0;
                 }
-                else if (choice3 == "2")
+                else if (j < limit || image.height - j < limit)
                 {
-                    if ( i < 45 || i >= image.width - 45)
-                    {
-                        image(i, j, 0) = 255;
-                        image(i, j, 1) = 255;
-                        image(i, j, 2) = 255;
-                        n = 0;
-                    }
-                    else if (j < limit || image.height - j < limit)
-                    {
-                        image(i, j, 0) = 255;
-                        image(i, j, 1) = 255;
-                        image(i, j, 2) = 255;
-                        image((image.width - 1) - i, j, 0) = 255;
-                        image((image.width - 1) - i, j, 1) = 255;
-                        image((image.width - 1) - i, j, 2) = 255;
-                    }
+                    image(i, j, 0) = nR2;
+                    image(i, j, 1) = nG2;
+                    image(i, j, 2) = nB2;
+                    image((image.width - 1) - i, j, 0) = nR2;
+                    image((image.width - 1) - i, j, 1) = nG2;
+                    image((image.width - 1) - i, j, 2) = nB2;
                 }
-                else if (choice3 == "3")
-                {
-                    if (i < 45 || i >= image.width - 45)
-                    {
-                        image(i, j, 0) = 0;
-                        image(i, j, 1) = 255;
-                        image(i, j, 2) = 0;
-                        n = 0;
-                    }
-                    else if (j < limit || image.height - j < limit)
-                    {
-                        image(i, j, 0) = 0;
-                        image(i, j, 1) = 255;
-                        image(i, j, 2) = 0;
-                        image((image.width - 1) - i, j, 0) = 0;
-                        image((image.width - 1) - i, j, 1) = 255;
-                        image((image.width - 1) - i, j, 2) = 0;
-                    }
-                }
-                else if (choice3 == "4")
-                {
-                    if (i < 45 || i >= image.width - 45)
-                    {
-                        image(i, j, 0) = 0;
-                        image(i, j, 1) = 0;
-                        image(i, j, 2) = 0;
-                        n = 0;
-                    }
-                    else if (j < limit || image.height - j < limit)
-                    {
-                        image(i, j, 0) = 0;
-                        image(i, j, 1) = 0;
-                        image(i, j, 2) = 0;
-                        image((image.width - 1) - i, j, 0) = 0;
-                        image((image.width - 1) - i, j, 1) = 0;
-                        image((image.width - 1) - i, j, 2) = 0;
-                    }
-                }
-                else if (choice3 == "5")
-                {
-                    if (i < 45 || i >= image.width - 45)
-                    {
-                        image(i, j, 0) = 0;
-                        image(i, j, 1) = 0;
-                        image(i, j, 2) = 255;
-                        n = 0;
-                    }
-                    else if (j < limit || image.height - j < limit)
-                    {
-                        image(i, j, 0) = 0;
-                        image(i, j, 1) = 0;
-                        image(i, j, 2) = 255;
-                        image((image.width - 1) - i, j, 0) = 0;
-                        image((image.width - 1) - i, j, 1) = 0;
-                        image((image.width - 1) - i, j, 2) = 255;
-                    }
-                }
-                
             }
+            
         }
-        if (limit > 45 && n == 0) --limit;
+        if (limit > borderwidth && n == 0) --limit;
     }
     save(image);
 }
@@ -1263,8 +1223,9 @@ int chooseFilter()
         std::cout << "12. Frames" << std::endl;
         std::cout << "13. Purple" << std::endl;
         std::cout << "14. blur" << std::endl;
-        std::cout << "15. Return" << std::endl;
-        std::cout << "16. Exit the program" << std::endl;
+        std::cout << "15. infrared" << std::endl;
+        std::cout << "16. Return" << std::endl;
+        std::cout << "17. Exit the program" << std::endl;
         std::cout << "enter choice:";
         std::getline(std::cin >> std::ws, choice);
         if(choice.length() > 2)
@@ -1273,7 +1234,7 @@ int chooseFilter()
         }
         try {
             int filter = std::stoi(choice);
-            if(filter >= 1 and filter <= 14)
+            if(filter >= 1 and filter <= 17)
             {
                 return filter;
             }
@@ -1406,7 +1367,10 @@ int main()
         case 14:
             blur(image);
             break;
-        case 16:
+        case 15:
+            infrared(image);
+            break;
+        case 17:
             save(image);
             std::cout << "------------" << std::endl;
             std::cout << "| GOOD BYE |" << std::endl;

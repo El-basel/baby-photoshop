@@ -47,6 +47,7 @@ bool wantToLoadNew()
     }
 }
 //take the new image name to save it or overwrite the same image
+bool savedBefore = false;
 int saveImage(Image& image)
 {
     std::string imageName{};
@@ -81,11 +82,13 @@ void save(Image& image)
         {
             do {
                 imageStatus = saveImage(image);
+                savedBefore = true;
             } while (imageStatus == -1);
             return;
         }
         else if(saveOption == "discard")
         {
+            savedBefore = false;
             return;
         }
         else
@@ -1374,7 +1377,11 @@ int main()
     {
         if (loadNewImage)
         {
-            save(image);
+            if(savedBefore)
+            {
+                save(image);
+            }
+            savedBefore = false;
             while (true)
             {
                 imageStatus = getImage(image);

@@ -1282,9 +1282,9 @@ int chooseFilter()
     std::string choice{};
     while (true)
     {
-        std::cout << "--------------------------------" << std::endl;
-        std::cout << "| what filter do you want use? |" << std::endl;
-        std::cout << "--------------------------------" << std::endl;
+        std::cout << "-----------------------------------" << std::endl;
+        std::cout << "| what filter do you want to use? |" << std::endl;
+        std::cout << "-----------------------------------" << std::endl;
         std::cout << "1. Grayscale              2. Black and White" << std::endl;
         std::cout << "3. Invert colors          4. Merge Images" << std::endl;
         std::cout << "5. Flip Image             6. Crop Image" << std::endl;

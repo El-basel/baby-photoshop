@@ -94,14 +94,19 @@ void infrared(Image& image)
             image(i, j, 1) = 255 - avg;
             image(i, j, 2) = 255 - avg;
             image(i, j, 0) += avg;
+            if (image(i,j,0) > 255)
+            {
+                image(i, j, 0) = 255;
+            }
         }
     }
     save(image);
 }
-int sumcalc(Image& image,int x, int y,int limit,int k)
+void resizeImage(Image& image, double xResize = 0, double yResize = 0, std::string calledBy = "other");
+//this function calculates the box blur sum
+int sumcalc(Image& image, int x, int y, int limit, int k)
 {
     int sum = 0;
-    //std::cout << x <<',' << y << '\n';
     for (int i = x; i < x + limit; i++)
     {
         for (int j = y; j < y + limit; j++)
@@ -113,35 +118,71 @@ int sumcalc(Image& image,int x, int y,int limit,int k)
 }
 void blur(Image& image)
 {
-    Image newimage(image.width, image.height);
-    bool key1 = 0, key2 = 1;
-    std::cout << "level of blur: ";
-    int n;
-    std::cin >> n;
-    int redsum, greensum, bluesum, limitw = 1, limith = 1, pixelw, pixelh,itrations = 0;
+    int n = 0, oldw = 0, oldh = 0;
+    bool key = 0;
+    while (true)
+    {
+        std::cout << "choose between 1-10\n";
+        std::cout << "level of blur: ";
+        std::string radius;
+        std::cin >> radius;
+        try
+        {
+            n = stoi(radius);
+        }
+        catch (std::invalid_argument&)
+        {
+            std::cout << "invalid input\n";
+            continue;
+        }
+        if (11 > n > 0)
+        {
+            break;
+        }
+        else
+        {
+            std::cout << "enter a number between 1-10";
+        }
+    }
+    //downsampling the image so it decreases the runtime if the image was too big
+    if (image.width > 1500 || image.height > 1900)
+    {
+        //saving the old width and height to upsample the image to the originial form
+        oldw = image.width, oldh = image.height;
+        resizeImage(image, oldw / 2, oldh / 2);
+        //used to detect if the image been downsampled or not
+        key = 1;
+    }
+    //the image where the blurry image will be done on
+    //removing the boundaries to avoid any white frame around it
+    Image newimage(image.width - 2 * n, image.height - 2 * n);
+    int redsum, greensum, bluesum;
     redsum = greensum = bluesum = 0;
     int limit = (2 * n) + 1;
-    std::cout << limit;
-    int avg = pow((2 * n) + 1,2);
+    int avg = pow((2 * n) + 1, 2);
     int redavg, greenavg, blueavg;
-    for (int i = n; i < image.width-n; i++)
+    for (int i = n; i < image.width - n; i++)
     {
-        
-        for (int j =n; j < image.height-n; j++)
+
+        for (int j = n; j < image.height - n; j++)
         {
-            //std::cout << i << ',' << j << '\n';
+            //sending the start of the matrices to the sum calc and the size of it to make it count the sum
             redsum = sumcalc(image, i - n, j - n, limit, 0);
-            //std::cout << redsum<<'\n';
             greensum = sumcalc(image, i - n, j - n, limit, 1);
             bluesum = sumcalc(image, i - n, j - n, limit, 2);
             redavg = redsum / avg;
             greenavg = greensum / avg;
             blueavg = bluesum / avg;
-            newimage(i, j, 0) = redavg;
-            newimage(i, j, 1) = greenavg;
-            newimage(i, j, 2) = blueavg;
-            
+            newimage(i - n, j - n, 0) = redavg;
+            newimage(i - n, j - n, 1) = greenavg;
+            newimage(i - n, j - n, 2) = blueavg;
+
         }
+    }
+    //if the image been downsampled it will get upsampled again
+    if (key)
+    {
+        resizeImage(newimage, oldw - 2 * n, oldh - 2 * n);
     }
     std::swap(image.imageData, newimage.imageData);
     std::swap(image.width, newimage.width);
@@ -154,6 +195,7 @@ void frame(Image& image)
     int n = 1, limit = image.width * 0.13, nR, nB, nG, nR2, nG2, nB2;
     nR = nB = nG = nR2 = nG2 = nB2 = 0;
     bool key1 = 1, key2 = 1;
+    // the loop breaks when all conditions are done
     while (key1 || key2)
     {
         std::cout << "-----------------------------------" << std::endl;
@@ -178,11 +220,13 @@ void frame(Image& image)
                 {
                     if (choice1 == "1")
                     {
+                        // there is no need to ask for border colors if the frame was simple so we break the loop
                         key1 = key2 = 0;
                         break;
                     }
                     else
                     {
+                        //if the frame is fancy then condition 1 is done
                         key1 = 0;
                         break;
                     }
@@ -227,6 +271,7 @@ void frame(Image& image)
     }
     int intchoice2 = stoi(choice2);
     int intchoice3 = stoi(choice3);
+    //switch case for for every chosen color for the frame
     switch (intchoice2)
     {
     case 1:
@@ -259,6 +304,7 @@ void frame(Image& image)
     }
     if (choice1 == "2")
     {
+        //swwitch case for every color for the border
         switch (intchoice3)
         {
         case 1:
@@ -290,13 +336,11 @@ void frame(Image& image)
             break;
         }
     }
-    std::cout << nR << '\t' << nG << '\t' << nB <<'\n';
-    std::cout << nR2 << '\t' << nG2 << '\t' << nB2 <<'\n';
+    // to make sure that the frame and borders are consistent with any image of any size
     int framewidth = image.width * 0.04;
     int borderwidth = image.width * 0.06;
     for (int i = 0; i < image.width; i++)
     {
-    //    int n = 0;
         for (int j = 0; j < image.height; j++)
         {
 
@@ -335,15 +379,17 @@ void frame(Image& image)
             }
             
         }
+        //to draw the triangle at the corners of the border so it decreases with every loop untill it reaches the normal border width
         if (limit > borderwidth && n == 0) --limit;
     }
     save(image);
 }
-
+//we treat an image like a matrix here that we rotate
 void image_rotation(Image& image)
 {
     Image finalimage;
     std::string choice;
+    //to get a valid input from user
     while (true)
     {
         std::cout << "----------------------------------------------------------------" << std::endl;
@@ -366,6 +412,8 @@ void image_rotation(Image& image)
             {
                 for (int k = 0; k < 3; ++k)
                 {
+                    //when the image got rotated the new width became equal to the height
+                    //and to make it start from the top of the image we needed to inverse the j loop (height loop)
                     newimage(n - j, i, k) = image(i, j, k);
                 }
             }
@@ -386,6 +434,7 @@ void image_rotation(Image& image)
             {
                 for (int k = 0; k < 3; ++k)
                 {
+                    //image dimensions are the same but the every pixel is inversed
                     newimage(n - i, y - j, k) = image(i, j, k);
                 }
             }
@@ -406,6 +455,7 @@ void image_rotation(Image& image)
             {
                 for (int k = 0; k < 3; ++k)
                 {
+                    //dimensions are the same but difference is the pixel starts from the end of the coulmn (old width)
                     newimage(j, n - i, k) = image(i, j, k);
                 }
             }
@@ -851,7 +901,7 @@ int resizeOptions(double& xResize, double& yResize, Image& image)
     return 0;
 }
 
-void resizeImage(Image& image, double xResize = 0, double yResize = 0,std::string calledBy = "other")
+void resizeImage(Image& image, double xResize, double yResize,std::string calledBy)
 {
     int option{1};
     if(xResize == 0 and yResize == 0)

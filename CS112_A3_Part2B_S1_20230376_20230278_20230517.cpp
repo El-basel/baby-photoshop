@@ -382,13 +382,13 @@ void blur(Image& image)
             std::cout << "invalid input\n";
             continue;
         }
-        if (11 > n > 0)
+        if (11 > n && n > 0)
         {
             break;
         }
         else
         {
-            std::cout << "enter a number between 1-10";
+            std::cout << "enter a number between 1-10\n";
         }
     }
     //downsampling the image so it decreases the runtime if the image was too big
@@ -1282,9 +1282,9 @@ int chooseFilter()
     std::string choice{};
     while (true)
     {
-        std::cout << "--------------------------------" << std::endl;
-        std::cout << "| what filter do you want use? |" << std::endl;
-        std::cout << "--------------------------------" << std::endl;
+        std::cout << "-----------------------------------" << std::endl;
+        std::cout << "| what filter do you want to use? |" << std::endl;
+        std::cout << "-----------------------------------" << std::endl;
         std::cout << "1. Grayscale              2. Black and White" << std::endl;
         std::cout << "3. Invert colors          4. Merge Images" << std::endl;
         std::cout << "5. Flip Image             6. Crop Image" << std::endl;

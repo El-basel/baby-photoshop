@@ -1255,6 +1255,7 @@ void naturalSunLight(Image& image)
 
 }
 
+// increase value of red and blue to make purple effect
 void purple(Image& image){
     int temp;
 

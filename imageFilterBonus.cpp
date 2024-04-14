@@ -363,13 +363,13 @@ void blur(Image& image)
             std::cout << "invalid input\n";
             continue;
         }
-        if (11 > n > 0)
+        if (11 > n && n > 0)
         {
             break;
         }
         else
         {
-            std::cout << "enter a number between 1-10";
+            std::cout << "enter a number between 1-10\n";
         }
     }
     //downsampling the image so it decreases the runtime if the image was too big

@@ -11,7 +11,7 @@
  * Youssef Walid did: color invertor, rotation, blur, frame, infrared
  * Fares Mohammed did: Brighten and darken, grayscale, edge detect, merge, purple
  *
- * system diagram: https://drive.google.com/file/d/1TVGHaVuiUS-xxS0q51B1S-3m1zOisO0s/view?usp=sharing
+ * system diagram: https://drive.google.com/file/d/1qCLl_w45jJACJqYnGOK_iZwGZNMLd2qx/view?usp=sharing
  * */
 #include <iostream>
 #include <string>

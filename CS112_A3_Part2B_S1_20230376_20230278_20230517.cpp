@@ -1,4 +1,20 @@
+/* FCAI - Structured Programming - 2024 - Assignment 3 - Part 1
+ * Program Description: a program that add filters to a provided image for the user
+ *                      The available filters are: gray scale, black and white, flip the image, darken or brighten the image and color invertor
+ * Program name: CS112_A3_Part1_S1_20230376_20230278_20230517.cpp
+ * Author1 and ID and Group: Mahmoud Mohamed El-Basel Hegazy,   20230376, Group A
+ * Author2 and ID and Group: Fares Mohammed Abdulhamid Sarhan,  20230278, Group A
+ * Author3 and ID and Group: Youssef Walid Mohamed Shaker,      20230517, Group A
+ * Teaching Assistant: Yomna Esmail Fathy
+ *
+ * Mahmoud Mohamed El-Basel did: Black and White, flip, resize, natural sunlight, crop
+ * Youssef Walid did: color invertor, rotation, blur, frame, infrared
+ * Fares Mohammed did: Brighten and darken, grayscale, edge detect, merge, purple
+ *
+ * system diagram: https://drive.google.com/file/d/1TVGHaVuiUS-xxS0q51B1S-3m1zOisO0s/view?usp=sharing
+ * */
 #include <iostream>
+#include <string>
 #include <stdexcept>
 #include <chrono>
 #include <thread>
@@ -8,7 +24,7 @@
 #include <cmath>
 #include "Image_Class.h"
 
-
+// ask the user if they want to load a new image
 bool wantToLoadNew()
 {
     while(true)
@@ -102,6 +118,7 @@ void infrared(Image& image)
     }
     save(image);
 }
+// get the option of resize, if the user wants to enter new dimensions or a ratio
 int resizeOptions(double& xResize, double& yResize, Image& image)
 {
     // check if the user wants to enter dimensions or ratio of reduction or ratio of increase
@@ -286,12 +303,13 @@ int resizeOptions(double& xResize, double& yResize, Image& image)
 void resizeImage(Image& image, double xResize = 0, double yResize = 0, std::string calledBy = "other")
 {
     int option{ 1 };
+    // if the user wants to resize then get the new dimensions, if the resize is called from another function then don't get the dimensions
     if (xResize == 0 and yResize == 0)
     {
         option = resizeOptions(xResize, yResize, image);
     }
     Image resizedImage(xResize, yResize);
-
+    // convert the new dimensions into ratio
     xResize = std::ceil(double(xResize) / image.width * 100) / 100;
     yResize = std::ceil(double(yResize) / image.height * 100) / 100;
 
@@ -300,6 +318,7 @@ void resizeImage(Image& image, double xResize = 0, double yResize = 0, std::stri
     int originalY{};
     for (int i = 0; i < resizedImage.width; ++i) {
         for (int j = 0; j < resizedImage.height; ++j) {
+            // get the corresponding mapping between the new image and the original one
             originalX = std::floor(i / xResize);
             originalY = std::floor(j / yResize);
             if (originalX < 0)
@@ -1206,7 +1225,7 @@ void mergeImages(Image& image){
     }
     save(image);
 }
-
+// increase the yellow in the images to make a sunlight effect
 void naturalSunLight(Image& image)
 {
     double factor{1.2};
@@ -1266,24 +1285,17 @@ int chooseFilter()
         std::cout << "--------------------------------" << std::endl;
         std::cout << "| what filter do you want use? |" << std::endl;
         std::cout << "--------------------------------" << std::endl;
-        std::cout << "1. Grayscale" << std::endl;
-        std::cout << "2. Black and White" << std::endl;
-        std::cout << "3. Invert colors" << std::endl;
-        std::cout << "4. Merge Images" << std::endl;
-        std::cout << "5. Flip Image" << std::endl;
-        std::cout << "6. Crop Image" << std::endl;
-        std::cout << "7. Resize Image" << std::endl;
-        std::cout << "8. Brighten or Darken Image" << std::endl;
-        std::cout << "9. rotate image" << std::endl;
-        std::cout << "10. Natural sun light" << std::endl;
-        std::cout << "11. Edge detect" << std::endl;
-        std::cout << "12. Frames" << std::endl;
-        std::cout << "13. Purple" << std::endl;
-        std::cout << "14. blur" << std::endl;
+        std::cout << "1. Grayscale              2. Black and White" << std::endl;
+        std::cout << "3. Invert colors          4. Merge Images" << std::endl;
+        std::cout << "5. Flip Image             6. Crop Image" << std::endl;
+        std::cout << "7. Resize Image           8. Brighten or Darken Image" << std::endl;
+        std::cout << "9. rotate image           10. Natural sun light" << std::endl;
+        std::cout << "11. Edge detect           12. Frames" << std::endl;
+        std::cout << "13. Purple                14. blur" << std::endl;
         std::cout << "15. infrared" << std::endl;
-        std::cout << "16. Return" << std::endl;
-        std::cout << "17. Exit the program" << std::endl;
-        std::cout << "enter choice:";
+        std::cout << "-------------------------------------------------" << std::endl;
+        std::cout << "16. Return                17. Exit the program" << std::endl;
+        std::cout << "Enter choice :";
         std::getline(std::cin >> std::ws, choice);
         if(choice.length() > 2)
         {
@@ -1302,7 +1314,7 @@ int chooseFilter()
         }
     }
 }
-
+// get the image name or see if the user wants to exit
 int getImage(Image& image)
 {
     std::string imageName{};
@@ -1435,7 +1447,6 @@ int main()
             return 0;
         default:
             std::cout << "You did not choose a filter" << std::endl;
-            save(image);
         }
         loadNewImage = wantToLoadNew();
     }
